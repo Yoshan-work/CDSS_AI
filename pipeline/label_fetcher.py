@@ -56,7 +56,7 @@ def fetch_openfda_sections(
     best_score = -1
 
     for q in queries:
-        params: Dict[str, Any] = {"search": q, "limit": 3}
+        params: Dict[str, Any] = {"search": q, "limit": 5}
         if OPENFDA_API_KEY:
             params["api_key"] = OPENFDA_API_KEY
         try:
@@ -65,20 +65,30 @@ def fetch_openfda_sections(
                 continue
             results = resp.json().get("results", [])
             for item in results:
-                # Prefer oral/systemic prescription labels that have drug_interactions & contraindications
+                # Prefer single-ingredient oral/systemic prescription labels with rich drug_interactions
                 score = sum(
                     1
                     for sec in TARGET_LABEL_SECTIONS
                     if item.get(sec) or (sec == "warnings" and item.get("warnings_and_cautions"))
                 )
-                if item.get("drug_interactions"):
+                openfda_meta = item.get("openfda", {})
+                g_names = [g.lower() for g in openfda_meta.get("generic_name", [])]
+                if g_names == [generic_name.lower()]:
+                    score += 5
+                elif any(g == generic_name.lower() for g in g_names):
+                    score += 3
+
+                di_text = " ".join(item.get("drug_interactions", []))
+                if len(di_text) > 400:
+                    score += 4
+                elif len(di_text) > 100:
                     score += 2
                 if item.get("contraindications"):
                     score += 2
                 if score > best_score:
                     best_score = score
                     best_label = item
-            if best_score >= 6:
+            if best_score >= 12:
                 break
         except Exception as exc:
             logger.debug(f"openFDA query '{q}' failed: {exc}")
@@ -94,6 +104,11 @@ def fetch_openfda_sections(
         if field == "warnings":
             for wf in ["boxed_warning", "warnings_and_cautions", "warnings"]:
                 val = best_label.get(wf)
+                if isinstance(val, list):
+                    raw_parts.extend(val)
+        elif field == "drug_interactions":
+            for df in ["drug_interactions", "precautions"]:
+                val = best_label.get(df)
                 if isinstance(val, list):
                     raw_parts.extend(val)
         elif field == "pregnancy":

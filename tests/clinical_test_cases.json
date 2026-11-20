@@ -1,0 +1,154 @@
+{
+  "description": "Pharmacist-Reviewed Clinical Benchmark Test Set (True Positive Alerts, Known-Safe Pairs, and NOT_VERIFIED Edge Cases)",
+  "cases": [
+    {
+      "case_id": "TC-01",
+      "description": "Known-Safe Pair: Amoxicillin + Ibuprofen (Must NOT raise false interaction alert)",
+      "medications": [{"name": "Amoxicillin", "dose": "500 mg TDS"}, {"name": "Ibuprofen", "dose": "400 mg TDS"}],
+      "patient_notes": "",
+      "expected_status": "ALL_RIGHT"
+    },
+    {
+      "case_id": "TC-02",
+      "description": "Known-Safe Pair: Amoxicillin + Paracetamol 500mg QID (2000mg/day <= 4000mg/day max)",
+      "medications": [{"name": "Amoxicillin", "dose": "500 mg TDS"}, {"name": "Paracetamol", "dose": "500 mg QID"}],
+      "patient_notes": "",
+      "expected_status": "ALL_RIGHT"
+    },
+    {
+      "case_id": "TC-03",
+      "description": "Known-Safe Triple Regimen: Metformin + Losartan + Atorvastatin (Normal renal function)",
+      "medications": [
+        {"name": "Metformin", "dose": "500 mg BD"},
+        {"name": "Losartan", "dose": "50 mg OD"},
+        {"name": "Atorvastatin", "dose": "20 mg OD"}
+      ],
+      "patient_notes": "Adult Type 2 Diabetes and Hypertension, eGFR 85",
+      "expected_status": "ALL_RIGHT"
+    },
+    {
+      "case_id": "TC-04",
+      "description": "Known-Safe Pair: Amlodipine + Metformin",
+      "medications": [{"name": "Amlodipine", "dose": "5 mg OD"}, {"name": "Metformin", "dose": "500 mg BD"}],
+      "patient_notes": "",
+      "expected_status": "ALL_RIGHT"
+    },
+    {
+      "case_id": "TC-05",
+      "description": "Known-Safe Pair: Pantoprazole + Clopidogrel (Pantoprazole is safe alternative to Omeprazole)",
+      "medications": [{"name": "Clopidogrel", "dose": "75 mg OD"}, {"name": "Pantoprazole", "dose": "40 mg OD"}],
+      "patient_notes": "",
+      "expected_status": "ALL_RIGHT"
+    },
+    {
+      "case_id": "TC-06",
+      "description": "Major DDInter Interaction: Warfarin + Brufen (Ibuprofen)",
+      "medications": [{"name": "Warfarin", "dose": "5 mg OD"}, {"name": "Brufen", "dose": "400 mg TDS"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-07",
+      "description": "Major DDInter Interaction: Plavix (Clopidogrel) + Losec (Omeprazole) CYP2C19 inhibition",
+      "medications": [{"name": "Plavix", "dose": "75 mg OD"}, {"name": "Losec", "dose": "20 mg OD"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-08",
+      "description": "Major DDInter Interaction: Lisinopril + Spironolactone (Hyperkalemia risk)",
+      "medications": [{"name": "Lisinopril", "dose": "10 mg OD"}, {"name": "Spironolactone", "dose": "25 mg OD"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-09",
+      "description": "Major DDInter Interaction: Simvastatin + Clarithromycin (CYP3A4 rhabdomyolysis risk)",
+      "medications": [{"name": "Simvastatin", "dose": "40 mg OD"}, {"name": "Clarithromycin", "dose": "500 mg BD"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-10",
+      "description": "Major DDInter Interaction: Warfarin + Flagyl (Metronidazole)",
+      "medications": [{"name": "Warfarin", "dose": "5 mg OD"}, {"name": "Flagyl", "dose": "400 mg TDS"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-11",
+      "description": "RxCUI Brand Duplicate: Brufen + Advil (Both Ibuprofen)",
+      "medications": [{"name": "Brufen", "dose": "400 mg TDS"}, {"name": "Advil", "dose": "400 mg TDS"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-12",
+      "description": "WHO/ISO ATC Class Duplication: Ibuprofen + Diclofenac (Two NSAIDs)",
+      "medications": [{"name": "Ibuprofen", "dose": "400 mg TDS"}, {"name": "Diclofenac", "dose": "50 mg BD"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-13",
+      "description": "Direct Coded Allergy: Penicillin Allergy + Augmentin",
+      "medications": [{"name": "Augmentin", "dose": "625 mg TDS"}],
+      "coded_allergies": [{"allergen": "penicillin", "severity": "anaphylaxis_severe"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-14",
+      "description": "Cross-Reactivity Allergy: Severe Penicillin Anaphylaxis + Cephalexin (1st-gen Cephalosporin)",
+      "medications": [{"name": "Cephalexin", "dose": "500 mg QID"}],
+      "coded_allergies": [{"allergen": "penicillin", "severity": "anaphylaxis_severe"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-15",
+      "description": "Cross-Reactivity Allergy: Aspirin Angioedema + Celecoxib",
+      "medications": [{"name": "Celecoxib", "dose": "200 mg OD"}],
+      "patient_notes": "History of Aspirin-induced angioedema",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-16",
+      "description": "Deterministic Dose Overdose: Panadol 1500mg q4h (9000 mg/day > 4000 mg/day max)",
+      "medications": [{"name": "Panadol", "dose": "1500 mg every 4 hours"}],
+      "patient_notes": "",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-17",
+      "description": "Hepatic Dose Limit (LiverTox): Paracetamol 1000mg QID (4000 mg/day) in Cirrhosis (max 2000 mg/day)",
+      "medications": [{"name": "Paracetamol", "dose": "1000 mg QID"}],
+      "patient_notes": "Liver cirrhosis",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-18",
+      "description": "KDIGO Renal Contraindication: Metformin in CKD Stage 4 (eGFR 22 < 30 mL/min)",
+      "medications": [{"name": "Metformin", "dose": "1000 mg BD"}],
+      "egfr": 22.0,
+      "patient_notes": "CKD Stage 4",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-19",
+      "description": "Pregnancy Teratogenicity Contraindication: Enalapril in 2nd Trimester Pregnancy",
+      "medications": [{"name": "Enalapril", "dose": "5 mg BD"}],
+      "pregnancy_status": "trimester_2",
+      "patient_notes": "Pregnant second trimester",
+      "expected_status": "ALERT"
+    },
+    {
+      "case_id": "TC-20",
+      "description": "NOT_VERIFIED Gate: Unindexed / Unknown Experimental Drug",
+      "medications": [{"name": "UnindexedExperimentalDrug999", "dose": "50 mg OD"}],
+      "patient_notes": "",
+      "expected_status": "NOT_VERIFIED"
+    }
+  ]
+}
+

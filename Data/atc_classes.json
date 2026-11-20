@@ -1,0 +1,173 @@
+{
+  "standard": "WHO/ISO Collaborating Centre for Drug Statistics Methodology — ATC Classification & NLM RxClass Mapping",
+  "allergy_cross_reactivity_matrix": {
+    "penicillin": {
+      "label": "Penicillin / Beta-Lactam Allergy",
+      "direct_allergy_groups": ["penicillin"],
+      "cross_reactive_groups": {
+        "cephalosporin": {
+          "risk_if_severe": "HIGH",
+          "risk_if_mild": "MODERATE",
+          "message": "Penicillin to Cephalosporin cross-reactivity (~1-2% overall; higher with 1st-gen cephalexin sharing R1 side chain). Avoid cephalexin if index penicillin reaction was severe/anaphylaxis; use 3rd-gen ceftriaxone with caution if mild rash."
+        },
+        "carbapenem": {
+          "risk_if_severe": "MODERATE",
+          "risk_if_mild": "LOW",
+          "message": "Low cross-reactivity (<1%) between penicillins and carbapenems, but use caution in patients with history of severe IgE-mediated penicillin anaphylaxis."
+        }
+      }
+    },
+    "cephalosporin": {
+      "label": "Cephalosporin Allergy",
+      "direct_allergy_groups": ["cephalosporin"],
+      "cross_reactive_groups": {
+        "penicillin": {
+          "risk_if_severe": "HIGH",
+          "risk_if_mild": "MODERATE",
+          "message": "Potential beta-lactam R1 side-chain cross-reactivity between cephalosporins and penicillins (especially cephalexin and amoxicillin/ampicillin)."
+        }
+      }
+    },
+    "sulfonamide": {
+      "label": "Sulfonamide (Sulfa) Allergy",
+      "direct_allergy_groups": ["sulfonamide_antibiotic"],
+      "cross_reactive_groups": {
+        "sulfonamide_non_antibiotic": {
+          "risk_if_severe": "MODERATE",
+          "risk_if_mild": "LOW",
+          "message": "Non-arylamine sulfonamides (furosemide, hydrochlorothiazide, celecoxib, gliclazide) have minimal immunologic cross-reactivity with sulfonamide antibiotics, but avoid if history of severe Stevens-Johnson syndrome/TEN."
+        }
+      }
+    },
+    "nsaid": {
+      "label": "NSAID / Aspirin Hypersensitivity",
+      "direct_allergy_groups": ["nsaid", "salicylate"],
+      "cross_reactive_groups": {
+        "cox2_nsaid": {
+          "risk_if_severe": "HIGH",
+          "risk_if_mild": "MODERATE",
+          "message": "Patients with aspirin/NSAID-exacerbated respiratory disease (AERD), bronchospasm, or angioedema show cross-reactivity across COX-1 inhibiting NSAIDs and potential reaction to COX-2 inhibitors (celecoxib)."
+        }
+      }
+    },
+    "aspirin": {
+      "label": "Aspirin / Salicylate Allergy",
+      "direct_allergy_groups": ["salicylate", "nsaid"],
+      "cross_reactive_groups": {
+        "cox2_nsaid": {
+          "risk_if_severe": "HIGH",
+          "risk_if_mild": "MODERATE",
+          "message": "Aspirin-induced asthma/angioedema cross-reacts across all COX-1 NSAIDs (ibuprofen, diclofenac, naproxen, mefenamic acid) via leukotriene overproduction."
+        }
+      }
+    },
+    "macrolide": {
+      "label": "Macrolide Antibiotic Allergy",
+      "direct_allergy_groups": ["macrolide"],
+      "cross_reactive_groups": {}
+    },
+    "fluoroquinolone": {
+      "label": "Fluoroquinolone Allergy",
+      "direct_allergy_groups": ["fluoroquinolone"],
+      "cross_reactive_groups": {}
+    },
+    "ace_inhibitor": {
+      "label": "ACE Inhibitor Angioedema / Intolerance",
+      "direct_allergy_groups": ["ace_inhibitor"],
+      "cross_reactive_groups": {
+        "arb": {
+          "risk_if_severe": "MODERATE",
+          "risk_if_mild": "LOW",
+          "message": "Patients with prior ACE inhibitor-induced angioedema have a small (~2-3%) risk of recurrent angioedema with ARBs (losartan, valsartan); monitor closely."
+        }
+      }
+    },
+    "opioid": {
+      "label": "Opioid Allergy",
+      "direct_allergy_groups": ["opioid"],
+      "cross_reactive_groups": {}
+    },
+    "acetaminophen": {
+      "label": "Acetaminophen (Paracetamol) Allergy",
+      "direct_allergy_groups": ["acetaminophen"],
+      "cross_reactive_groups": {}
+    }
+  },
+  "drugs": {
+    "ibuprofen": { "atc_code": "M01AE01", "atc_level4": "M01AE", "therapeutic_class": "NSAID", "allergy_group": "nsaid" },
+    "diclofenac": { "atc_code": "M01AB05", "atc_level4": "M01AB", "therapeutic_class": "NSAID", "allergy_group": "nsaid" },
+    "naproxen": { "atc_code": "M01AE02", "atc_level4": "M01AE", "therapeutic_class": "NSAID", "allergy_group": "nsaid" },
+    "mefenamic acid": { "atc_code": "M01AG01", "atc_level4": "M01AG", "therapeutic_class": "NSAID", "allergy_group": "nsaid" },
+    "celecoxib": { "atc_code": "M01AH01", "atc_level4": "M01AH", "therapeutic_class": "NSAID", "allergy_group": "cox2_nsaid" },
+    "aspirin": { "atc_code": "B01AC06", "atc_level4": "B01AC", "therapeutic_class": "Antiplatelet / Salicylate NSAID", "allergy_group": "salicylate" },
+    "acetaminophen": { "atc_code": "N02BE01", "atc_level4": "N02BE", "therapeutic_class": "Analgesic / Antipyretic (Anilide)", "allergy_group": "acetaminophen" },
+    "tramadol": { "atc_code": "N02AX02", "atc_level4": "N02AX", "therapeutic_class": "Opioid Analgesic", "allergy_group": "opioid" },
+    "morphine": { "atc_code": "N02AA01", "atc_level4": "N02AA", "therapeutic_class": "Opioid Analgesic", "allergy_group": "opioid" },
+    "amoxicillin": { "atc_code": "J01CA04", "atc_level4": "J01CA", "therapeutic_class": "Penicillin Antibiotic", "allergy_group": "penicillin" },
+    "clavulanate": { "atc_code": "J01CR02", "atc_level4": "J01CR", "therapeutic_class": "Penicillin + Beta-Lactamase Inhibitor", "allergy_group": "penicillin" },
+    "penicillin": { "atc_code": "J01CE01", "atc_level4": "J01CE", "therapeutic_class": "Penicillin Antibiotic", "allergy_group": "penicillin" },
+    "cephalexin": { "atc_code": "J01DB01", "atc_level4": "J01DB", "therapeutic_class": "Cephalosporin Antibiotic (1st Gen)", "allergy_group": "cephalosporin" },
+    "ceftriaxone": { "atc_code": "J01DD04", "atc_level4": "J01DD", "therapeutic_class": "Cephalosporin Antibiotic (3rd Gen)", "allergy_group": "cephalosporin" },
+    "azithromycin": { "atc_code": "J01FA10", "atc_level4": "J01FA", "therapeutic_class": "Macrolide Antibiotic", "allergy_group": "macrolide" },
+    "clarithromycin": { "atc_code": "J01FA09", "atc_level4": "J01FA", "therapeutic_class": "Macrolide Antibiotic", "allergy_group": "macrolide" },
+    "ciprofloxacin": { "atc_code": "J01MA02", "atc_level4": "J01MA", "therapeutic_class": "Fluoroquinolone Antibiotic", "allergy_group": "fluoroquinolone" },
+    "metronidazole": { "atc_code": "J01XD01", "atc_level4": "J01XD", "therapeutic_class": "Nitroimidazole Antibiotic", "allergy_group": "nitroimidazole" },
+    "doxycycline": { "atc_code": "J01AA02", "atc_level4": "J01AA", "therapeutic_class": "Tetracycline Antibiotic", "allergy_group": "tetracycline" },
+    "clindamycin": { "atc_code": "J01FF01", "atc_level4": "J01FF", "therapeutic_class": "Lincosamide Antibiotic", "allergy_group": "lincosamide" },
+    "nitrofurantoin": { "atc_code": "J01XE01", "atc_level4": "J01XE", "therapeutic_class": "Nitrofuran Urinary Antibiotic", "allergy_group": "nitrofuran" },
+    "trimethoprim": { "atc_code": "J01EA01", "atc_level4": "J01EA", "therapeutic_class": "Trimethoprim / Folate Antagonist", "allergy_group": "trimethoprim" },
+    "sulfamethoxazole": { "atc_code": "J01EE01", "atc_level4": "J01EE", "therapeutic_class": "Sulfonamide Antibiotic", "allergy_group": "sulfonamide_antibiotic" },
+    "fluconazole": { "atc_code": "J02AC01", "atc_level4": "J02AC", "therapeutic_class": "Triazole Antifungal", "allergy_group": "azole_antifungal" },
+    "acyclovir": { "atc_code": "J05AB01", "atc_level4": "J05AB", "therapeutic_class": "Nucleoside Antiviral", "allergy_group": "antiviral" },
+    "metformin": { "atc_code": "A10BA02", "atc_level4": "A10BA", "therapeutic_class": "Biguanide Antidiabetic", "allergy_group": "biguanide" },
+    "glimepiride": { "atc_code": "A10BB12", "atc_level4": "A10BB", "therapeutic_class": "Sulfonylurea Antidiabetic", "allergy_group": "sulfonamide_non_antibiotic" },
+    "gliclazide": { "atc_code": "A10BB09", "atc_level4": "A10BB", "therapeutic_class": "Sulfonylurea Antidiabetic", "allergy_group": "sulfonamide_non_antibiotic" },
+    "sitagliptin": { "atc_code": "A10BH01", "atc_level4": "A10BH", "therapeutic_class": "DPP-4 Inhibitor Antidiabetic", "allergy_group": "dpp4_inhibitor" },
+    "empagliflozin": { "atc_code": "A10BK03", "atc_level4": "A10BK", "therapeutic_class": "SGLT2 Inhibitor Antidiabetic", "allergy_group": "sglt2_inhibitor" },
+    "amlodipine": { "atc_code": "C08CA01", "atc_level4": "C08CA", "therapeutic_class": "Dihydropyridine Calcium Channel Blocker", "allergy_group": "ccb" },
+    "losartan": { "atc_code": "C09CA01", "atc_level4": "C09CA", "therapeutic_class": "Angiotensin II Receptor Blocker (ARB)", "allergy_group": "arb" },
+    "valsartan": { "atc_code": "C09CA03", "atc_level4": "C09CA", "therapeutic_class": "Angiotensin II Receptor Blocker (ARB)", "allergy_group": "arb" },
+    "enalapril": { "atc_code": "C09AA02", "atc_level4": "C09AA", "therapeutic_class": "ACE Inhibitor", "allergy_group": "ace_inhibitor" },
+    "lisinopril": { "atc_code": "C09AA03", "atc_level4": "C09AA", "therapeutic_class": "ACE Inhibitor", "allergy_group": "ace_inhibitor" },
+    "atenolol": { "atc_code": "C07AB03", "atc_level4": "C07AB", "therapeutic_class": "Beta-Blocker (Cardioselective)", "allergy_group": "beta_blocker" },
+    "metoprolol": { "atc_code": "C07AB02", "atc_level4": "C07AB", "therapeutic_class": "Beta-Blocker (Cardioselective)", "allergy_group": "beta_blocker" },
+    "bisoprolol": { "atc_code": "C07AB07", "atc_level4": "C07AB", "therapeutic_class": "Beta-Blocker (Cardioselective)", "allergy_group": "beta_blocker" },
+    "carvedilol": { "atc_code": "C07AG02", "atc_level4": "C07AG", "therapeutic_class": "Alpha/Beta-Blocker", "allergy_group": "beta_blocker" },
+    "propranolol": { "atc_code": "C07AA05", "atc_level4": "C07AA", "therapeutic_class": "Beta-Blocker (Non-Selective)", "allergy_group": "beta_blocker" },
+    "hydrochlorothiazide": { "atc_code": "C03AA03", "atc_level4": "C03AA", "therapeutic_class": "Thiazide Diuretic", "allergy_group": "sulfonamide_non_antibiotic" },
+    "furosemide": { "atc_code": "C03CA01", "atc_level4": "C03CA", "therapeutic_class": "Loop Diuretic", "allergy_group": "sulfonamide_non_antibiotic" },
+    "spironolactone": { "atc_code": "C03DA01", "atc_level4": "C03DA", "therapeutic_class": "Potassium-Sparing Diuretic (Aldosterone Antagonist)", "allergy_group": "aldosterone_antagonist" },
+    "atorvastatin": { "atc_code": "C10AA05", "atc_level4": "C10AA", "therapeutic_class": "HMG-CoA Reductase Inhibitor (Statin)", "allergy_group": "statin" },
+    "rosuvastatin": { "atc_code": "C10AA07", "atc_level4": "C10AA", "therapeutic_class": "HMG-CoA Reductase Inhibitor (Statin)", "allergy_group": "statin" },
+    "simvastatin": { "atc_code": "C10AA01", "atc_level4": "C10AA", "therapeutic_class": "HMG-CoA Reductase Inhibitor (Statin)", "allergy_group": "statin" },
+    "warfarin": { "atc_code": "B01AA03", "atc_level4": "B01AA", "therapeutic_class": "Vitamin K Antagonist Oral Anticoagulant", "allergy_group": "coumarin" },
+    "clopidogrel": { "atc_code": "B01AC04", "atc_level4": "B01AC", "therapeutic_class": "Antiplatelet (P2Y12 Inhibitor)", "allergy_group": "thienopyridine" },
+    "apixaban": { "atc_code": "B01AF02", "atc_level4": "B01AF", "therapeutic_class": "Direct Factor Xa Inhibitor Oral Anticoagulant (DOAC)", "allergy_group": "doac" },
+    "rivaroxaban": { "atc_code": "B01AF01", "atc_level4": "B01AF", "therapeutic_class": "Direct Factor Xa Inhibitor Oral Anticoagulant (DOAC)", "allergy_group": "doac" },
+    "enoxaparin": { "atc_code": "B01AB05", "atc_level4": "B01AB", "therapeutic_class": "Low Molecular Weight Heparin (LMWH)", "allergy_group": "heparin" },
+    "digoxin": { "atc_code": "C01AA05", "atc_level4": "C01AA", "therapeutic_class": "Cardiac Glycoside", "allergy_group": "cardiac_glycoside" },
+    "amiodarone": { "atc_code": "C01BD01", "atc_level4": "C01BD", "therapeutic_class": "Class III Antiarrhythmic", "allergy_group": "amiodarone" },
+    "omeprazole": { "atc_code": "A02BC01", "atc_level4": "A02BC", "therapeutic_class": "Proton Pump Inhibitor (PPI)", "allergy_group": "ppi" },
+    "pantoprazole": { "atc_code": "A02BC02", "atc_level4": "A02BC", "therapeutic_class": "Proton Pump Inhibitor (PPI)", "allergy_group": "ppi" },
+    "esomeprazole": { "atc_code": "A02BC05", "atc_level4": "A02BC", "therapeutic_class": "Proton Pump Inhibitor (PPI)", "allergy_group": "ppi" },
+    "famotidine": { "atc_code": "A02BA03", "atc_level4": "A02BA", "therapeutic_class": "H2-Receptor Antagonist", "allergy_group": "h2_blocker" },
+    "ondansetron": { "atc_code": "A04AA01", "atc_level4": "A04AA", "therapeutic_class": "5-HT3 Antagonist Antiemetic", "allergy_group": "5ht3_antagonist" },
+    "metoclopramide": { "atc_code": "A03FA01", "atc_level4": "A03FA", "therapeutic_class": "Dopamine Antagonist Prokinetic/Antiemetic", "allergy_group": "prokinetic" },
+    "albuterol": { "atc_code": "R03AC02", "atc_level4": "R03AC", "therapeutic_class": "Selective Beta-2 Adrenoceptor Agonist", "allergy_group": "beta2_agonist" },
+    "montelukast": { "atc_code": "R03DC03", "atc_level4": "R03DC", "therapeutic_class": "Leukotriene Receptor Antagonist", "allergy_group": "ltra" },
+    "prednisolone": { "atc_code": "H02AB06", "atc_level4": "H02AB", "therapeutic_class": "Systemic Corticosteroid", "allergy_group": "corticosteroid" },
+    "dexamethasone": { "atc_code": "H02AB02", "atc_level4": "H02AB", "therapeutic_class": "Systemic Corticosteroid", "allergy_group": "corticosteroid" },
+    "hydrocortisone": { "atc_code": "H02AB09", "atc_level4": "H02AB", "therapeutic_class": "Systemic Corticosteroid", "allergy_group": "corticosteroid" },
+    "levothyroxine": { "atc_code": "H03AA01", "atc_level4": "H03AA", "therapeutic_class": "Thyroid Hormone", "allergy_group": "thyroid" },
+    "sertraline": { "atc_code": "N06AB06", "atc_level4": "N06AB", "therapeutic_class": "Selective Serotonin Reuptake Inhibitor (SSRI)", "allergy_group": "ssri" },
+    "fluoxetine": { "atc_code": "N06AB03", "atc_level4": "N06AB", "therapeutic_class": "Selective Serotonin Reuptake Inhibitor (SSRI)", "allergy_group": "ssri" },
+    "amitriptyline": { "atc_code": "N06AA09", "atc_level4": "N06AA", "therapeutic_class": "Tricyclic Antidepressant (TCA)", "allergy_group": "tca" },
+    "diazepam": { "atc_code": "N05BA01", "atc_level4": "N05BA", "therapeutic_class": "Benzodiazepine", "allergy_group": "benzodiazepine" },
+    "lorazepam": { "atc_code": "N05BA06", "atc_level4": "N05BA", "therapeutic_class": "Benzodiazepine", "allergy_group": "benzodiazepine" },
+    "carbamazepine": { "atc_code": "N03AF01", "atc_level4": "N03AF", "therapeutic_class": "Anticonvulsant (Carboxamide)", "allergy_group": "anticonvulsant" },
+    "valproic acid": { "atc_code": "N03AG01", "atc_level4": "N03AG", "therapeutic_class": "Anticonvulsant (Fatty Acid Derivative)", "allergy_group": "anticonvulsant" },
+    "levetiracetam": { "atc_code": "N03AX14", "atc_level4": "N03AX", "therapeutic_class": "Anticonvulsant (Pyrrolidone)", "allergy_group": "anticonvulsant" },
+    "allopurinol": { "atc_code": "M04AA01", "atc_level4": "M04AA", "therapeutic_class": "Xanthine Oxidase Inhibitor (Antigout)", "allergy_group": "xanthine_oxidase_inhibitor" }
+  }
+}
+

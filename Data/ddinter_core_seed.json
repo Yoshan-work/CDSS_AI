@@ -1,0 +1,327 @@
+{
+  "source": "DDInter 2.0 Structured Drug-Drug Interaction Core Table (CC BY-NC-SA 4.0 Reference + Clinical Formulary Matrix)",
+  "version": "2.0-core",
+  "interactions": [
+    {
+      "ddinter_id": "DDInter-0001",
+      "drug_a": "warfarin",
+      "drug_b": "ibuprofen",
+      "severity": "Major",
+      "mechanism": "Ibuprofen inhibits platelet aggregation and causes gastrointestinal mucosal injury, synergistically increasing the risk of severe GI and systemic hemorrhage with warfarin. NSAIDs may also displace warfarin from plasma protein binding.",
+      "management": "Avoid concomitant use. If analgesic/antipyretic therapy is needed, use acetaminophen (paracetamol) at the lowest effective dose and monitor INR closely."
+    },
+    {
+      "ddinter_id": "DDInter-0002",
+      "drug_a": "warfarin",
+      "drug_b": "diclofenac",
+      "severity": "Major",
+      "mechanism": "Diclofenac impairs platelet function and causes gastric mucosal erosion, markedly increasing major gastrointestinal bleeding risk when combined with oral anticoagulants like warfarin.",
+      "management": "Avoid combination. Consider acetaminophen for analgesia or add gastroprotection and monitor INR and hemoglobin if unavoidable."
+    },
+    {
+      "ddinter_id": "DDInter-0003",
+      "drug_a": "warfarin",
+      "drug_b": "naproxen",
+      "severity": "Major",
+      "mechanism": "Additive antiplatelet and GI ulcerogenic effects of naproxen with warfarin anticoagulant activity significantly elevate severe hemorrhage risk.",
+      "management": "Avoid concomitant use. Substitute with non-NSAID analgesic."
+    },
+    {
+      "ddinter_id": "DDInter-0004",
+      "drug_a": "warfarin",
+      "drug_b": "celecoxib",
+      "severity": "Major",
+      "mechanism": "Concomitant use of celecoxib and warfarin increases prothrombin time (INR) via CYP2C9 competition and increases serious bleeding risk.",
+      "management": "Avoid unless benefits outweigh bleeding risk; monitor INR closely within 3-5 days of starting or changing celecoxib."
+    },
+    {
+      "ddinter_id": "DDInter-0005",
+      "drug_a": "warfarin",
+      "drug_b": "aspirin",
+      "severity": "Major",
+      "mechanism": "Aspirin irreversibly inhibits platelet COX-1 and damages GI mucosa, dramatically increasing major bleeding risk with warfarin.",
+      "management": "Avoid routine combination unless specifically indicated (e.g. mechanical heart valve or acute coronary syndrome with gastroprotection). Monitor INR and signs of bleeding."
+    },
+    {
+      "ddinter_id": "DDInter-0006",
+      "drug_a": "warfarin",
+      "drug_b": "metronidazole",
+      "severity": "Major",
+      "mechanism": "Metronidazole strongly inhibits CYP2C9-mediated metabolism of the more potent S-warfarin enantiomer, causing marked INR elevation and hemorrhage.",
+      "management": "Avoid combination if possible. If co-prescribed, reduce warfarin dose by 25-40% and monitor INR every 2-3 days."
+    },
+    {
+      "ddinter_id": "DDInter-0007",
+      "drug_a": "warfarin",
+      "drug_b": "ciprofloxacin",
+      "severity": "Major",
+      "mechanism": "Ciprofloxacin inhibits CYP1A2 metabolism of R-warfarin and reduces vitamin K-producing gut flora, leading to unpredictable INR elevation and bleeding.",
+      "management": "Monitor INR closely within 3-5 days of starting ciprofloxacin and adjust warfarin dose accordingly."
+    },
+    {
+      "ddinter_id": "DDInter-0008",
+      "drug_a": "warfarin",
+      "drug_b": "fluconazole",
+      "severity": "Major",
+      "mechanism": "Fluconazole is a strong inhibitor of CYP2C9 and CYP3A4, markedly decreasing warfarin clearance and doubling or tripling INR.",
+      "management": "Reduce warfarin dose by 25-50% when initiating fluconazole and monitor INR frequently."
+    },
+    {
+      "ddinter_id": "DDInter-0009",
+      "drug_a": "warfarin",
+      "drug_b": "clarithromycin",
+      "severity": "Major",
+      "mechanism": "Clarithromycin inhibits hepatic CYP3A4 cytochrome metabolism of warfarin and alters gut flora, increasing anticoagulant effect and hemorrhage risk.",
+      "management": "Monitor INR closely and adjust warfarin dosage during and after clarithromycin therapy."
+    },
+    {
+      "ddinter_id": "DDInter-0010",
+      "drug_a": "warfarin",
+      "drug_b": "azithromycin",
+      "severity": "Moderate",
+      "mechanism": "Azithromycin may potentiate the hypoprothrombinemic effect of warfarin via gut flora alteration or hepatic effects.",
+      "management": "Monitor INR within 3-5 days of initiating azithromycin in anticoagulated patients."
+    },
+    {
+      "ddinter_id": "DDInter-0011",
+      "drug_a": "warfarin",
+      "drug_b": "amiodarone",
+      "severity": "Major",
+      "mechanism": "Amiodarone potently inhibits CYP2C9 and CYP3A4 clearance of both S- and R-warfarin; effect persists for weeks due to amiodarone's long half-life.",
+      "management": "Empirically reduce warfarin dose by 30-50% when starting amiodarone and monitor INR weekly for several weeks."
+    },
+    {
+      "ddinter_id": "DDInter-0012",
+      "drug_a": "warfarin",
+      "drug_b": "clopidogrel",
+      "severity": "Major",
+      "mechanism": "Dual inhibition of coagulation (warfarin) and P2Y12 platelet aggregation (clopidogrel) substantially increases major gastrointestinal and intracranial bleeding.",
+      "management": "Use together only for specific cardiology indications (e.g. AF with recent stent) for the shortest required duration with PPI gastroprotection (pantoprazole)."
+    },
+    {
+      "ddinter_id": "DDInter-0013",
+      "drug_a": "warfarin",
+      "drug_b": "acetaminophen",
+      "severity": "Moderate",
+      "mechanism": "Regular high-dose acetaminophen (>2000 mg/day for several consecutive days) can elevate INR via interference with vitamin K-dependent clotting factor synthesis.",
+      "management": "Acetaminophen remains the preferred analgesic over NSAIDs in warfarin patients, but limit dose to <=2000 mg/day for prolonged courses and check INR if used >3-5 days."
+    },
+    {
+      "ddinter_id": "DDInter-0014",
+      "drug_a": "clopidogrel",
+      "drug_b": "omeprazole",
+      "severity": "Major",
+      "mechanism": "Omeprazole inhibits CYP2C19, blocking bioactivation of the prodrug clopidogrel to its active antiplatelet metabolite by ~40-50% and increasing stent thrombosis risk.",
+      "management": "Avoid omeprazole and esomeprazole with clopidogrel. Switch gastroprotection to pantoprazole (minimal CYP2C19 inhibition) or famotidine."
+    },
+    {
+      "ddinter_id": "DDInter-0015",
+      "drug_a": "clopidogrel",
+      "drug_b": "esomeprazole",
+      "severity": "Major",
+      "mechanism": "Esomeprazole inhibits CYP2C19-mediated conversion of clopidogrel to its active metabolite, reducing antiplatelet efficacy.",
+      "management": "Avoid esomeprazole in patients taking clopidogrel; substitute with pantoprazole or an H2-receptor antagonist (famotidine)."
+    },
+    {
+      "ddinter_id": "DDInter-0016",
+      "drug_a": "clopidogrel",
+      "drug_b": "ibuprofen",
+      "severity": "Major",
+      "mechanism": "Additive platelet inhibition and NSAID-induced mucosal injury significantly increase occult and overt gastrointestinal bleeding.",
+      "management": "Avoid concomitant NSAIDs with clopidogrel; if unavoidable, add pantoprazole and monitor for GI bleeding."
+    },
+    {
+      "ddinter_id": "DDInter-0017",
+      "drug_a": "clopidogrel",
+      "drug_b": "aspirin",
+      "severity": "Moderate",
+      "mechanism": "Dual antiplatelet therapy (DAPT) synergistically inhibits platelet aggregation, increasing major bleeding risk while providing ischemic protection post-ACS/stent.",
+      "management": "Intentional in ACS/coronary stenting (keep aspirin dose low: 75-100 mg/day). Add pantoprazole if high GI bleed risk and confirm intended DAPT duration."
+    },
+    {
+      "ddinter_id": "DDInter-0018",
+      "drug_a": "enalapril",
+      "drug_b": "spironolactone",
+      "severity": "Major",
+      "mechanism": "Both ACE inhibitors (enalapril) and aldosterone antagonists (spironolactone) decrease aldosterone-mediated potassium excretion, causing potentially life-threatening hyperkalemia.",
+      "management": "Monitor serum potassium and renal function (eGFR/creatinine) closely at baseline, 1 week, and monthly; avoid if baseline K+ > 5.0 mmol/L or eGFR < 30."
+    },
+    {
+      "ddinter_id": "DDInter-0019",
+      "drug_a": "lisinopril",
+      "drug_b": "spironolactone",
+      "severity": "Major",
+      "mechanism": "Additive potassium retention by lisinopril (ACE inhibitor) and spironolactone increases risk of severe hyperkalemia and cardiac arrhythmias, especially in CKD.",
+      "management": "Keep spironolactone dose <=25-50 mg/day, monitor serum potassium and creatinine closely, and avoid potassium supplements."
+    },
+    {
+      "ddinter_id": "DDInter-0020",
+      "drug_a": "losartan",
+      "drug_b": "spironolactone",
+      "severity": "Major",
+      "mechanism": "Combined RAAS blockade with an ARB (losartan) and potassium-sparing diuretic (spironolactone) substantially increases hyperkalemia risk.",
+      "management": "Monitor serum potassium and renal function frequently; avoid in severe renal impairment (eGFR < 30 mL/min)."
+    },
+    {
+      "ddinter_id": "DDInter-0021",
+      "drug_a": "enalapril",
+      "drug_b": "ibuprofen",
+      "severity": "Moderate",
+      "mechanism": "Ibuprofen inhibits renal prostaglandin synthesis, blunting the antihypertensive effect of enalapril and constricting the afferent arteriole while enalapril dilates the efferent arteriole, risking acute kidney injury (AKI).",
+      "management": "Avoid chronic NSAID use in patients on ACE inhibitors, especially if also taking a diuretic ('triple whammy') or in elderly/CKD patients. Monitor BP and serum creatinine."
+    },
+    {
+      "ddinter_id": "DDInter-0022",
+      "drug_a": "lisinopril",
+      "drug_b": "ibuprofen",
+      "severity": "Moderate",
+      "mechanism": "NSAIDs attenuate the blood pressure-lowering effect of lisinopril and increase the risk of acute renal function deterioration.",
+      "management": "Prefer acetaminophen for pain control. If NSAID is used short-term, ensure adequate hydration and monitor renal function and blood pressure."
+    },
+    {
+      "ddinter_id": "DDInter-0023",
+      "drug_a": "losartan",
+      "drug_b": "ibuprofen",
+      "severity": "Moderate",
+      "mechanism": "Ibuprofen antagonizes the antihypertensive effect of losartan and reduces glomerular filtration via afferent arteriolar constriction.",
+      "management": "Avoid prolonged co-administration; monitor blood pressure and renal function (eGFR)."
+    },
+    {
+      "ddinter_id": "DDInter-0024",
+      "drug_a": "enalapril",
+      "drug_b": "losartan",
+      "severity": "Major",
+      "mechanism": "Dual RAAS blockade (ACE inhibitor + ARB) increases risk of hypotension, hyperkalemia, and acute kidney injury without added cardiovascular survival benefit.",
+      "management": "Avoid combining an ACE inhibitor with an ARB."
+    },
+    {
+      "ddinter_id": "DDInter-0025",
+      "drug_a": "simvastatin",
+      "drug_b": "amlodipine",
+      "severity": "Major",
+      "mechanism": "Amlodipine weakly inhibits intestinal and hepatic CYP3A4, increasing simvastatin acid exposure by ~77% and raising myopathy/rhabdomyolysis risk.",
+      "management": "Do not exceed simvastatin 20 mg once daily when co-administered with amlodipine, or switch to atorvastatin/rosuvastatin."
+    },
+    {
+      "ddinter_id": "DDInter-0026",
+      "drug_a": "simvastatin",
+      "drug_b": "clarithromycin",
+      "severity": "Major",
+      "mechanism": "Clarithromycin potently inhibits CYP3A4 metabolism of simvastatin, causing up to 10-fold higher statin levels and severe rhabdomyolysis.",
+      "management": "Contraindicated together. Temporarily suspend simvastatin during the course of clarithromycin, or use azithromycin instead."
+    },
+    {
+      "ddinter_id": "DDInter-0027",
+      "drug_a": "atorvastatin",
+      "drug_b": "clarithromycin",
+      "severity": "Major",
+      "mechanism": "Clarithromycin inhibits CYP3A4 and OATP1B1, significantly increasing atorvastatin plasma concentrations and risk of myopathy/rhabdomyolysis.",
+      "management": "Avoid combination or limit atorvastatin to <=20 mg/day (or temporarily hold statin during short antibiotic course)."
+    },
+    {
+      "ddinter_id": "DDInter-0028",
+      "drug_a": "simvastatin",
+      "drug_b": "amiodarone",
+      "severity": "Major",
+      "mechanism": "Amiodarone inhibits CYP3A4 metabolism of simvastatin, increasing risk of dose-related myopathy and rhabdomyolysis.",
+      "management": "Do not exceed simvastatin 20 mg daily in patients taking amiodarone, or switch to rosuvastatin."
+    },
+    {
+      "ddinter_id": "DDInter-0029",
+      "drug_a": "digoxin",
+      "drug_b": "amiodarone",
+      "severity": "Major",
+      "mechanism": "Amiodarone inhibits P-glycoprotein renal and biliary efflux of digoxin, increasing serum digoxin levels by 70-100% and causing digitalis toxicity.",
+      "management": "Reduce digoxin dose by 50% when starting amiodarone and monitor serum digoxin levels and ECG closely."
+    },
+    {
+      "ddinter_id": "DDInter-0030",
+      "drug_a": "digoxin",
+      "drug_b": "furosemide",
+      "severity": "Moderate",
+      "mechanism": "Furosemide-induced hypokalemia and hypomagnesemia sensitize the myocardium to digoxin, precipitating digitalis arrhythmias even at normal digoxin levels.",
+      "management": "Monitor serum potassium and magnesium closely and supplement electrolytes to maintain K+ > 4.0 mmol/L."
+    },
+    {
+      "ddinter_id": "DDInter-0031",
+      "drug_a": "ciprofloxacin",
+      "drug_b": "ondansetron",
+      "severity": "Major",
+      "mechanism": "Additive prolongation of the cardiac QTc interval increases the risk of Torsades de Pointes ventricular arrhythmia.",
+      "management": "Monitor ECG and electrolytes (K+, Mg2+) if co-administered, especially in elderly or cardiac patients."
+    },
+    {
+      "ddinter_id": "DDInter-0032",
+      "drug_a": "azithromycin",
+      "drug_b": "ondansetron",
+      "severity": "Major",
+      "mechanism": "Both azithromycin and ondansetron are known QT-prolonging agents (CredibleMeds); concurrent use increases risk of QTc prolongation and Torsades de Pointes.",
+      "management": "Avoid in patients with baseline QT prolongation or hypokalemia; monitor ECG if combination is required."
+    },
+    {
+      "ddinter_id": "DDInter-0033",
+      "drug_a": "azithromycin",
+      "drug_b": "amiodarone",
+      "severity": "Major",
+      "mechanism": "Additive QTc interval prolongation increases risk of potentially fatal Torsades de Pointes arrhythmia.",
+      "management": "Avoid combination; consider alternative antibiotic without QT liability (e.g. amoxicillin or doxycycline)."
+    },
+    {
+      "ddinter_id": "DDInter-0034",
+      "drug_a": "tramadol",
+      "drug_b": "sertraline",
+      "severity": "Major",
+      "mechanism": "Additive serotonergic activity increases the risk of serotonin syndrome (hyperreflexia, clonus, hyperthermia, agitation) and lowers seizure threshold; sertraline also inhibits CYP2D6 activation of tramadol.",
+      "management": "Avoid combination if possible; use non-opioid or non-serotonergic analgesic and monitor closely for serotonin toxicity."
+    },
+    {
+      "ddinter_id": "DDInter-0035",
+      "drug_a": "tramadol",
+      "drug_b": "fluoxetine",
+      "severity": "Major",
+      "mechanism": "Fluoxetine strongly inhibits CYP2D6 (reducing tramadol analgesic efficacy) while increasing risk of serotonin syndrome and seizures.",
+      "management": "Avoid co-administration; select an alternative analgesic."
+    },
+    {
+      "ddinter_id": "DDInter-0036",
+      "drug_a": "aspirin",
+      "drug_b": "ibuprofen",
+      "severity": "Major",
+      "mechanism": "Ibuprofen competitively blocks access of low-dose aspirin to the serine-529 acetylation site on platelet COX-1, abolishing aspirin's irreversible cardioprotective antiplatelet effect while increasing GI ulceration risk.",
+      "management": "Avoid ibuprofen in patients taking low-dose aspirin for cardioprotection (use acetaminophen instead). If immediate-release aspirin is used, dose ibuprofen at least 30 min after or >8 hours before aspirin."
+    },
+    {
+      "ddinter_id": "DDInter-0037",
+      "drug_a": "aspirin",
+      "drug_b": "prednisolone",
+      "severity": "Moderate",
+      "mechanism": "Corticosteroids and salicylates/NSAIDs have additive gastrointestinal mucosal toxicity, increasing risk of peptic ulceration and GI hemorrhage.",
+      "management": "Consider proton pump inhibitor (e.g. omeprazole or pantoprazole) gastroprotection during concurrent therapy."
+    },
+    {
+      "ddinter_id": "DDInter-0038",
+      "drug_a": "ibuprofen",
+      "drug_b": "prednisolone",
+      "severity": "Moderate",
+      "mechanism": "Concurrent use of systemic corticosteroids (prednisolone) and NSAIDs (ibuprofen) increases the risk of gastrointestinal ulceration and bleeding 2- to 4-fold.",
+      "management": "Avoid combination if possible, or co-prescribe a proton pump inhibitor (PPI) for GI prophylaxis and take with food."
+    },
+    {
+      "ddinter_id": "DDInter-0039",
+      "drug_a": "amoxicillin",
+      "drug_b": "allopurinol",
+      "severity": "Moderate",
+      "mechanism": "Concomitant administration of allopurinol and amoxicillin increases the incidence of maculopapular skin rash (~15-20% vs ~5% with amoxicillin alone).",
+      "management": "Monitor patient for cutaneous rash; discontinue amoxicillin if a generalized or severe rash develops."
+    },
+    {
+      "ddinter_id": "DDInter-0040",
+      "drug_a": "albuterol",
+      "drug_b": "propranolol",
+      "severity": "Major",
+      "mechanism": "Non-selective beta-blockers (propranolol) directly antagonize beta-2 adrenergic bronchodilation produced by albuterol (salbutamol) and can precipitate severe, potentially fatal bronchospasm in asthma/COPD patients.",
+      "management": "Contraindicated in asthma. If a beta-blocker is strictly required for cardiovascular disease, use a cardioselective beta-1 blocker (e.g. bisoprolol or metoprolol) with caution."
+    }
+  ]
+}
+

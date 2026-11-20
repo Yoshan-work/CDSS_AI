@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CDSS — Clinical Decision Support System</title>
+  <title>CDSS v2.0 — ISO-Compliant Clinical Decision Support System</title>
   <style>
     :root {
       --bg: #f4f6f9;
@@ -22,6 +22,9 @@
       --red-bg: #fee2e2;
       --red-border: #dc2626;
       --red-text: #7f1d1d;
+      --grey-bg: #f1f5f9;
+      --grey-border: #475569;
+      --grey-text: #1e293b;
     }
     * { box-sizing: border-box; }
     body {
@@ -43,11 +46,11 @@
     }
     header h1 {
       margin: 0;
-      font-size: 1.15rem;
+      font-size: 1.12rem;
       font-weight: 600;
     }
     .status-pill {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       background: #1e293b;
       border: 1px solid #334155;
       padding: 5px 12px;
@@ -55,7 +58,7 @@
       color: #cbd5e1;
     }
     .container {
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 20px auto;
       padding: 0 16px 40px;
     }
@@ -63,6 +66,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
     }
     .tab-btn {
       padding: 8px 16px;
@@ -72,7 +76,7 @@
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
     .tab-btn.active {
       background: var(--primary);
@@ -89,38 +93,36 @@
     }
     .card h2 {
       margin: 0 0 12px;
-      font-size: 1rem;
+      font-size: 0.98rem;
       border-bottom: 1px solid var(--border);
       padding-bottom: 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .grid-3 {
+    .grid-4 {
       display: grid;
-      grid-template-columns: 1fr 1.5fr 2fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 12px;
+      margin-bottom: 12px;
     }
-    @media (max-width: 768px) {
-      .grid-3 { grid-template-columns: 1fr; }
+    @media (max-width: 820px) {
+      .grid-4 { grid-template-columns: 1fr 1fr; }
     }
     label {
       display: block;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-weight: 600;
       margin-bottom: 4px;
       color: #334155;
     }
-    input[type="text"] {
+    input[type="text"], input[type="number"], select {
       width: 100%;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border: 1px solid #cbd5e1;
       border-radius: 5px;
-      font-size: 0.92rem;
-    }
-    input[type="text"]:focus {
-      outline: none;
-      border-color: var(--primary);
+      font-size: 0.9rem;
+      background: #fff;
     }
     .med-row {
       display: grid;
@@ -133,39 +135,24 @@
       padding: 8px 14px;
       border-radius: 5px;
       border: 1px solid transparent;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 600;
       cursor: pointer;
     }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
+    .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-hover); }
-    .btn-primary:disabled {
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background: #f1f5f9;
-      border-color: #cbd5e1;
-      color: #1e293b;
-    }
+    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-secondary { background: #f1f5f9; border-color: #cbd5e1; color: #1e293b; }
     .btn-secondary:hover { background: #e2e8f0; }
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-      border-color: #fecaca;
-      padding: 7px 11px;
-    }
+    .btn-danger { background: #fee2e2; color: #b91c1c; border-color: #fecaca; padding: 7px 11px; }
     .presets {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       margin-bottom: 12px;
     }
     .preset-btn {
-      font-size: 0.78rem;
+      font-size: 0.77rem;
       padding: 5px 10px;
       background: #f8fafc;
       border: 1px solid #cbd5e1;
@@ -180,33 +167,16 @@
       border-left: 6px solid;
       margin-bottom: 16px;
     }
-    .banner.ALL_RIGHT {
-      background: var(--green-bg);
-      border-color: var(--green-border);
-      color: var(--green-text);
-    }
-    .banner.SUGGESTION {
-      background: var(--amber-bg);
-      border-color: var(--amber-border);
-      color: var(--amber-text);
-    }
-    .banner.ALERT {
-      background: var(--red-bg);
-      border-color: var(--red-border);
-      color: var(--red-text);
-    }
-    .banner h3 {
-      margin: 0 0 6px;
-      font-size: 1.1rem;
-    }
-    .banner p {
-      margin: 0;
-      font-size: 0.94rem;
-    }
+    .banner.ALL_RIGHT { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+    .banner.SUGGESTION { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber-text); }
+    .banner.ALERT { background: var(--red-bg); border-color: var(--red-border); color: var(--red-text); }
+    .banner.NOT_VERIFIED { background: var(--grey-bg); border-color: var(--grey-border); color: var(--grey-text); }
+    .banner h3 { margin: 0 0 6px; font-size: 1.08rem; }
+    .banner p { margin: 0; font-size: 0.92rem; }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       margin-top: 8px;
     }
     th, td {
@@ -215,21 +185,18 @@
       border-bottom: 1px solid var(--border);
       vertical-align: top;
     }
-    th {
-      background: #f8fafc;
-      font-weight: 600;
-      color: #334155;
-    }
+    th { background: #f8fafc; font-weight: 600; color: #334155; }
     .badge {
       display: inline-block;
       padding: 2px 7px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
     }
     .badge-ok { background: #dcfce7; color: #166534; }
     .badge-high { background: #fee2e2; color: #991b1b; }
     .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-unverified { background: #e2e8f0; color: #334155; }
     .alert-item {
       border: 1px solid #fecaca;
       background: #fff5f5;
@@ -237,13 +204,8 @@
       padding: 10px 14px;
       margin-bottom: 8px;
     }
-    .suggestion-list {
-      margin: 6px 0 0;
-      padding-left: 20px;
-    }
-    .suggestion-list li {
-      margin-bottom: 6px;
-    }
+    .suggestion-list { margin: 6px 0 0; padding-left: 20px; }
+    .suggestion-list li { margin-bottom: 6px; font-size: 0.9rem; }
     details {
       margin-top: 12px;
       border: 1px solid var(--border);
@@ -251,83 +213,98 @@
       padding: 8px 12px;
       background: #f8fafc;
     }
-    summary {
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.88rem;
-    }
+    summary { cursor: pointer; font-weight: 600; font-size: 0.86rem; }
     .chunk-box {
       border: 1px solid #cbd5e1;
       background: #fff;
       border-radius: 5px;
       padding: 10px;
       margin-top: 8px;
-      font-size: 0.82rem;
+      font-size: 0.81rem;
     }
+    .trace-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .trace-stat {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 5px;
+      font-size: 0.78rem;
+    }
+    .trace-stat strong { display: block; font-size: 0.98rem; color: #38bdf8; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
   <header>
-    <h1>CDSS — Medication Safety & Clinical Decision Support</h1>
-    <div class="status-pill" id="systemStatus">Connecting to Local Qwen LLM...</div>
+    <h1>CDSS v2.0 — Deterministic Clinical Rule Engine + DDInter 2.0 + WHO/ISO ATC + Cited Qwen LLM</h1>
+    <div class="status-pill" id="systemStatus">Initializing ISO Trace & Knowledge Stores...</div>
   </header>
 
   <div class="container">
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('checkTab', this)">1. Prescription Check</button>
       <button class="tab-btn" onclick="switchTab('kbTab', this)">2. Knowledge Base & Pharmacist Spot-Check</button>
+      <button class="tab-btn" onclick="switchTab('logsTab', this); loadSystemTraces();">3. ISO System Trace & Latency Logs</button>
     </div>
 
     <!-- TAB 1: PRESCRIPTION CHECK -->
     <div id="checkTab">
       <div class="card">
         <h2>
-          <span>Quick Test Scenarios (Click to Auto-Fill)</span>
-          <span style="font-size:0.78rem; color:var(--muted); font-weight:normal;">Pipeline: RxNorm &rarr; openFDA / DailyMed &rarr; WHO EML &rarr; Local Qwen LLM</span>
+          <span>Quick Clinical Test Cases</span>
+          <span style="font-size:0.76rem; color:var(--muted); font-weight:normal;">Standards: ISO-8601 | WHO/ISO ATC | DDInter 2.0 | KDIGO | NLM RxNorm</span>
         </h2>
         <div class="presets">
-          <button class="preset-btn" onclick="loadPreset('all_right')">🟢 Case 1: Standard Safe Prescription (All Right)</button>
-          <button class="preset-btn" onclick="loadPreset('interaction_alert')">🔴 Case 2: Warfarin + Brufen Interaction (Alert)</button>
-          <button class="preset-btn" onclick="loadPreset('duplicate_brand')">🔴 Case 3: Brand Duplicate — Brufen + Advil (Alert)</button>
-          <button class="preset-btn" onclick="loadPreset('clopidogrel_ppi')">🟡 Case 4: Plavix (Clopidogrel) + Losec (Omeprazole)</button>
-          <button class="preset-btn" onclick="loadPreset('overdose')">🔴 Case 5: Panadol Supratherapeutic Dose</button>
-          <button class="preset-btn" onclick="loadPreset('allergy')">🔴 Case 6: Penicillin Allergy + Augmentin/Amoxicillin</button>
+          <button class="preset-btn" onclick="loadPreset('safe_amox_ibu')">🟢 Case 1: Amoxicillin + Ibuprofen (Verified Safe)</button>
+          <button class="preset-btn" onclick="loadPreset('ddinter_warfarin')">🔴 Case 2: Warfarin + Brufen (DDInter Major DDI)</button>
+          <button class="preset-btn" onclick="loadPreset('atc_class_dup')">🔴 Case 3: Brufen + Diclofenac (Same ATC Class NSAIDs)</button>
+          <button class="preset-btn" onclick="loadPreset('allergy_cross')">🔴 Case 4: Penicillin Anaphylaxis + Cephalexin (Cross-Reactivity)</button>
+          <button class="preset-btn" onclick="loadPreset('kdigo_renal')">🔴 Case 5: Metformin in CKD Stage 4 (eGFR 22)</button>
+          <button class="preset-btn" onclick="loadPreset('not_verified')">⚪ Case 6: Unknown Experimental Drug (NOT_VERIFIED)</button>
         </div>
 
         <h2>Patient Details</h2>
-        <div class="grid-3" style="margin-bottom: 16px;">
+        <div class="grid-4" style="grid-template-columns: 0.9fr 1.2fr 0.7fr 2.2fr; margin-bottom: 16px;">
           <div>
             <label for="patientId">Patient ID *</label>
-            <input type="text" id="patientId" placeholder="e.g. PT-2026-001" value="PT-1042" />
+            <input type="text" id="patientId" placeholder="e.g. PT-1042" value="PT-1042" />
           </div>
           <div>
             <label for="patientName">Patient Name *</label>
             <input type="text" id="patientName" placeholder="e.g. Kamal Perera" value="Kamal Perera" />
           </div>
           <div>
-            <label for="patientNotes">Allergies / Conditions / Clinical Notes (Optional)</label>
-            <input type="text" id="patientNotes" placeholder="e.g. Allergic to Penicillin, Pregnant, CKD, Peptic Ulcer" />
+            <label for="patientAge">Age (Years)</label>
+            <input type="number" id="patientAge" placeholder="e.g. 45" />
+          </div>
+          <div>
+            <label for="patientNotes">Allergies &amp; Clinical Notes / Conditions</label>
+            <input type="text" id="patientNotes" placeholder="e.g. Penicillin allergy, Pregnant, CKD (eGFR 22), Asthma, Cirrhosis" />
           </div>
         </div>
 
         <h2>
-          <span>Medication List & Dose</span>
+          <span>Medication List & Regimen</span>
           <button class="btn btn-secondary" type="button" onclick="addMedRow('', '')">+ Add Drug Row</button>
         </h2>
         <div style="display:grid; grid-template-columns:1.4fr 1.2fr auto; gap:10px; margin-bottom:4px;">
           <label>Medication Name (Brand or Generic)</label>
-          <label>Dose & Frequency</label>
+          <label>Dose & Frequency (e.g. 500 mg TDS, 400 mg QID, 5 mg OD)</label>
           <span></span>
         </div>
         <div id="medListContainer"></div>
 
-        <div style="margin-top: 16px; display: flex; gap: 10px; align-items: center;">
+        <div style="margin-top: 14px; display: flex; gap: 10px; align-items: center;">
           <button class="btn btn-primary" id="checkBtn" onclick="submitCheck()">
-            Run CDSS Check (Local Qwen LLM)
+            Run Deterministic + Cited Qwen LLM Check
           </button>
           <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
-          <span id="loadingMsg" style="font-size: 0.86rem; color: var(--muted);"></span>
+          <span id="loadingMsg" style="font-size: 0.84rem; color: var(--muted);"></span>
         </div>
       </div>
 
@@ -338,29 +315,39 @@
           <p id="statusSummary"></p>
         </div>
 
+        <!-- ISO Trace & Latency Bar -->
+        <div class="card">
+          <h2>
+            <span>ISO-8601 System Trace & Latency Breakdown</span>
+            <code id="traceIdBadge" style="font-size:0.78rem; color:var(--primary);"></code>
+          </h2>
+          <div class="trace-grid" id="latencyGrid"></div>
+          <div id="traceMetaLine" style="margin-top:8px; font-size:0.8rem; color:var(--muted);"></div>
+        </div>
+
         <!-- Alerts -->
         <div class="card" id="alertsCard">
-          <h2>Clinical Alerts</h2>
+          <h2>Clinical Alerts (Deterministic & Citation-Validated)</h2>
           <div id="alertsContainer"></div>
         </div>
 
         <!-- Suggestions -->
         <div class="card" id="suggestionsCard">
-          <h2>Suggestions & Recommendations</h2>
+          <h2>Clinical Management & Monitoring Suggestions</h2>
           <ul class="suggestion-list" id="suggestionsList"></ul>
         </div>
 
         <!-- Normalized Drugs & Per-Drug Review -->
         <div class="card">
-          <h2>Normalized Medications (RxNorm + WHO EML + Dose Evaluation)</h2>
+          <h2>Normalized Medications (RxNorm + WHO/ISO ATC + Deterministic Dose Math)</h2>
           <table>
             <thead>
               <tr>
                 <th>Entered Drug</th>
-                <th>Normalized Generic (RxCUI)</th>
-                <th>Prescribed Dose</th>
-                <th>Dose Status</th>
-                <th>WHO EML Reference</th>
+                <th>Generic & RxCUI</th>
+                <th>WHO/ISO ATC Class</th>
+                <th>Prescribed & 24h Calc</th>
+                <th>Status</th>
                 <th>Clinical Assessment</th>
               </tr>
             </thead>
@@ -368,7 +355,7 @@
           </table>
 
           <details>
-            <summary>View Retrieved RAG Evidence Chunks (openFDA / DailyMed / WHO EML Citations)</summary>
+            <summary>View Knowledge Base Citations (DDInter 2.0 / openFDA / DailyMed / WHO EML)</summary>
             <div id="citationsContainer"></div>
           </details>
         </div>
@@ -382,16 +369,11 @@
           <span>Vector DB Knowledge Base & Pharmacist Spot-Check</span>
           <button class="btn btn-secondary" onclick="seedMoreDrugs()">Pre-load Starter Formulary Drugs</button>
         </h2>
-        <p style="font-size:0.86rem; color:var(--muted); margin-top:0;">
-          Inspect stored chunks in <code>Data/chunks/knowledge_chunks.jsonl</code> and mark drugs as pharmacist-verified.
-        </p>
         <div style="display:flex; gap:8px; margin-bottom:14px;">
           <input type="text" id="inspectDrugInput" placeholder="Search or index a drug (e.g. ibuprofen, warfarin, metformin)..." style="max-width:360px;" />
           <button class="btn btn-primary" onclick="inspectDrug()">Lookup / Index Drug</button>
         </div>
-
         <div id="drugInspectorOutput"></div>
-
         <h2 style="margin-top:20px;">Indexed Drugs in Local Vector Store</h2>
         <table>
           <thead>
@@ -408,6 +390,17 @@
         </table>
       </div>
     </div>
+
+    <!-- TAB 3: ISO SYSTEM TRACE & AUDIT LOGS -->
+    <div id="logsTab" class="hidden">
+      <div class="card">
+        <h2>
+          <span>ISO-8601 System Trace Logs (<code>logs/cdss_system_trace.jsonl</code>)</span>
+          <button class="btn btn-secondary" onclick="loadSystemTraces()">Refresh Logs</button>
+        </h2>
+        <div id="traceLogsContainer"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -416,8 +409,8 @@
       const row = document.createElement("div");
       row.className = "med-row";
       row.innerHTML = `
-        <input type="text" class="med-name" placeholder="e.g. Brufen, Advil, Warfarin, Amoxicillin" value="${name}" />
-        <input type="text" class="med-dose" placeholder="e.g. 400mg TID, 5mg once daily" value="${dose}" />
+        <input type="text" class="med-name" placeholder="e.g. Amoxicillin, Ibuprofen, Warfarin" value="${name}" />
+        <input type="text" class="med-dose" placeholder="e.g. 500 mg TDS, 400 mg TDS" value="${dose}" />
         <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">Remove</button>
       `;
       container.appendChild(row);
@@ -426,50 +419,55 @@
     function clearForm() {
       document.getElementById("medListContainer").innerHTML = "";
       document.getElementById("patientNotes").value = "";
+      document.getElementById("patientAge").value = "";
       addMedRow("", "");
       addMedRow("", "");
       document.getElementById("resultSection").classList.add("hidden");
     }
 
     function loadPreset(type) {
-      const container = document.getElementById("medListContainer");
-      container.innerHTML = "";
-      document.getElementById("resultSection").classList.add("hidden");
+      clearForm();
+      document.getElementById("medListContainer").innerHTML = "";
 
-      if (type === "all_right") {
-        document.getElementById("patientId").value = "PT-1001";
+      if (type === "safe_amox_ibu") {
+        document.getElementById("patientId").value = "PT-2001";
         document.getElementById("patientName").value = "Nimal Silva";
-        document.getElementById("patientNotes").value = "Adult, Hypertension & Type 2 Diabetes (normal renal function)";
-        addMedRow("Amlodipine", "5 mg once daily");
-        addMedRow("Metformin", "500 mg twice daily with meals");
-      } else if (type === "interaction_alert") {
-        document.getElementById("patientId").value = "PT-1002";
+        document.getElementById("patientAge").value = "34";
+        document.getElementById("patientNotes").value = "No known allergies";
+        addMedRow("Amoxicillin", "500 mg TDS");
+        addMedRow("Ibuprofen", "400 mg TDS");
+      } else if (type === "ddinter_warfarin") {
+        document.getElementById("patientId").value = "PT-2002";
         document.getElementById("patientName").value = "Sunil Jayasuriya";
-        document.getElementById("patientNotes").value = "Atrial fibrillation on anticoagulation, acute knee pain";
-        addMedRow("Warfarin", "5 mg once daily");
-        addMedRow("Brufen", "400 mg three times daily");
-      } else if (type === "duplicate_brand") {
-        document.getElementById("patientId").value = "PT-1003";
+        document.getElementById("patientAge").value = "62";
+        document.getElementById("patientNotes").value = "Atrial fibrillation on anticoagulation";
+        addMedRow("Warfarin", "5 mg OD");
+        addMedRow("Brufen", "400 mg TDS");
+      } else if (type === "atc_class_dup") {
+        document.getElementById("patientId").value = "PT-2003";
         document.getElementById("patientName").value = "Chathura Fernando";
-        document.getElementById("patientNotes").value = "Dental pain";
-        addMedRow("Brufen", "400 mg TID");
-        addMedRow("Advil", "400 mg TID");
-      } else if (type === "clopidogrel_ppi") {
-        document.getElementById("patientId").value = "PT-1004";
-        document.getElementById("patientName").value = "Ranjith Perera";
-        document.getElementById("patientNotes").value = "Post coronary stent placement";
-        addMedRow("Plavix", "75 mg once daily");
-        addMedRow("Losec", "20 mg once daily");
-      } else if (type === "overdose") {
-        document.getElementById("patientId").value = "PT-1005";
-        document.getElementById("patientName").value = "Malini Rodrigo";
-        document.getElementById("patientNotes").value = "Fever and body aches";
-        addMedRow("Panadol", "1500 mg every 4 hours (9000 mg/day)");
-      } else if (type === "allergy") {
-        document.getElementById("patientId").value = "PT-1006";
+        document.getElementById("patientAge").value = "40";
+        document.getElementById("patientNotes").value = "Acute back pain";
+        addMedRow("Brufen", "400 mg TDS");
+        addMedRow("Diclofenac", "50 mg BD");
+      } else if (type === "allergy_cross") {
+        document.getElementById("patientId").value = "PT-2004";
         document.getElementById("patientName").value = "Dilshan Mendis";
-        document.getElementById("patientNotes").value = "Known severe allergy to Penicillin (anaphylaxis history)";
-        addMedRow("Augmentin", "625 mg three times daily");
+        document.getElementById("patientAge").value = "29";
+        document.getElementById("patientNotes").value = "Known severe Penicillin allergy (anaphylaxis)";
+        addMedRow("Cephalexin", "500 mg QID");
+      } else if (type === "kdigo_renal") {
+        document.getElementById("patientId").value = "PT-2005";
+        document.getElementById("patientName").value = "Ranjith Perera";
+        document.getElementById("patientAge").value = "68";
+        document.getElementById("patientNotes").value = "Type 2 Diabetes, CKD Stage 4 (eGFR 22)";
+        addMedRow("Metformin", "1000 mg BD");
+      } else if (type === "not_verified") {
+        document.getElementById("patientId").value = "PT-2006";
+        document.getElementById("patientName").value = "Malini Rodrigo";
+        document.getElementById("patientAge").value = "50";
+        document.getElementById("patientNotes").value = "";
+        addMedRow("ExperimentalDrugXYZ999", "100 mg OD");
       }
     }
 
@@ -479,7 +477,7 @@
         const data = await res.json();
         const kb = data.knowledge_base || {};
         document.getElementById("systemStatus").textContent =
-          `Local LLM: ${data.ollama_model} | Vector DB: ${kb.total_drugs || 0} Drugs (${kb.total_chunks || 0} Chunks)`;
+          `Explainer LLM: ${data.ollama_model} | DDInter 2.0: ${kb.ddinter_records || 0} Pairs | Vector DB: ${kb.total_drugs || 0} Drugs (${kb.total_chunks || 0} Chunks)`;
         renderKbTable(kb.indexed_drugs || []);
       } catch (e) {
         document.getElementById("systemStatus").textContent = "Backend status unavailable";
@@ -489,7 +487,7 @@
     function renderKbTable(drugs) {
       const tbody = document.getElementById("kbDrugsTable");
       if (!drugs.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);">No drugs indexed yet. Run a check or click "Pre-load Starter Formulary Drugs".</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--muted);">No drugs indexed yet.</td></tr>`;
         return;
       }
       tbody.innerHTML = drugs.map(d => `
@@ -508,6 +506,7 @@
       const patient_id = document.getElementById("patientId").value.trim();
       const patient_name = document.getElementById("patientName").value.trim();
       const patient_notes = document.getElementById("patientNotes").value.trim();
+      const ageVal = document.getElementById("patientAge").value.trim();
 
       const names = document.querySelectorAll(".med-name");
       const doses = document.querySelectorAll(".med-dose");
@@ -526,13 +525,19 @@
       const btn = document.getElementById("checkBtn");
       const msg = document.getElementById("loadingMsg");
       btn.disabled = true;
-      msg.textContent = "Normalizing via RxNorm, retrieving openFDA/DailyMed/WHO EML chunks, and evaluating with local Qwen LLM...";
+      msg.textContent = "Running deterministic rule engine (DDInter 2.0 + WHO/ISO ATC + KDIGO) & Cited Qwen Explainer...";
 
       try {
         const res = await fetch("/api/check", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ patient_id, patient_name, patient_notes, medications })
+          body: JSON.stringify({
+            patient_id,
+            patient_name,
+            patient_notes,
+            patient_age: ageVal ? parseInt(ageVal, 10) : null,
+            medications
+          })
         });
         if (!res.ok) {
           const err = await res.json();
@@ -555,10 +560,29 @@
 
       const banner = document.getElementById("statusBanner");
       banner.className = `banner ${data.overall_status}`;
-      const icon = data.overall_status === "ALL_RIGHT" ? "🟢" : (data.overall_status === "SUGGESTION" ? "🟡" : "🔴");
+      const icons = { ALL_RIGHT: "🟢", SUGGESTION: "🟡", ALERT: "🔴", NOT_VERIFIED: "⚪" };
+      const icon = icons[data.overall_status] || "⚪";
       document.getElementById("statusTitle").textContent = `${icon} ${data.status_label}`;
       document.getElementById("statusSummary").textContent =
         `Patient: ${data.patient.patient_name} (${data.patient.patient_id}) — ${data.summary}`;
+
+      // ISO Trace & Latency Breakdown
+      const tr = data.system_trace || {};
+      const lat = tr.latency_ms || {};
+      document.getElementById("traceIdBadge").textContent = `${tr.trace_id || ''} | ${tr.completed_at || ''}`;
+      document.getElementById("latencyGrid").innerHTML = `
+        <div class="trace-stat">RxNorm + WHO ATC<strong>${lat.rxnorm_atc_normalization_ms || 0} ms</strong></div>
+        <div class="trace-stat">Vector KB Lookup<strong>${lat.kb_vector_retrieval_ms || 0} ms</strong></div>
+        <div class="trace-stat">Deterministic Rules<strong>${lat.deterministic_rules_ms || 0} ms</strong></div>
+        <div class="trace-stat">Qwen LLM Explainer<strong>${lat.llm_explainer_inference_ms || 0} ms</strong></div>
+        <div class="trace-stat">Total End-to-End<strong>${lat.total_latency_ms || 0} ms</strong></div>
+      `;
+      const mod = tr.model_used || {};
+      const audit = tr.llm_citation_audit || {};
+      document.getElementById("traceMetaLine").innerHTML =
+        `<strong>Sources Used:</strong> ${(tr.sources_summary || []).join(", ")} &nbsp;|&nbsp; ` +
+        `<strong>Model:</strong> ${mod.model_name || 'N/A'} (${mod.status || ''}) &nbsp;|&nbsp; ` +
+        `<strong>Citation Gate Dropped Hallucinations:</strong> ${(audit.rejected_uncited_alerts || []).length}`;
 
       // Alerts
       const alertsCard = document.getElementById("alertsCard");
@@ -572,9 +596,11 @@
           <div class="alert-item">
             <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
               <strong>[${a.severity || 'ALERT'} — ${a.type || 'SAFETY'}] ${(a.drugs_involved || []).join(" + ")}</strong>
-              <span style="font-size:0.78rem; color:var(--muted);">Source: ${a.source || 'openFDA / RxNorm'}</span>
+              <span style="font-size:0.76rem; color:var(--muted);">
+                ${a.deterministic ? "🔒 Deterministic Rule" : "📄 Cited LLM"} | Source: ${a.source || 'CDSS Rule Engine'}
+              </span>
             </div>
-            <div style="font-size:0.9rem;">${a.description || ''}</div>
+            <div style="font-size:0.89rem;">${a.description || ''}</div>
           </div>
         `).join("");
       }
@@ -601,15 +627,15 @@
       tbody.innerHTML = (data.normalized_medications || []).map(m => {
         const rev = reviewsMap[m.entered_name.toLowerCase()] || reviewsMap[m.generic_name.toLowerCase()] || {};
         const dStatus = (rev.dose_status || "OK").toUpperCase();
-        const badgeClass = dStatus === "OK" ? "badge-ok" : (dStatus === "HIGH" ? "badge-high" : "badge-warn");
+        const badgeClass = dStatus === "OK" ? "badge-ok" : (dStatus === "NOT_VERIFIED" ? "badge-unverified" : (dStatus === "REVIEW" ? "badge-warn" : "badge-high"));
         return `
           <tr>
             <td><strong>${m.entered_name}</strong></td>
-            <td>${m.generic_name} <br/><small style="color:var(--muted);">RxCUI: <code>${m.rxcui}</code></small></td>
-            <td>${m.entered_dose}</td>
+            <td>${m.generic_name}<br/><small style="color:var(--muted);">RxCUI: <code>${m.rxcui}</code></small></td>
+            <td><code>${m.atc_code || '-'}</code><br/><small style="color:var(--muted);">${m.therapeutic_class || ''}</small></td>
+            <td>${m.entered_dose}<br/><small style="color:var(--primary); font-weight:600;">${m.calculated_daily_dose || ''}</small></td>
             <td><span class="badge ${badgeClass}">${dStatus}</span></td>
-            <td><small>${m.who_eml_status || "-"}<br/><em>${m.who_typical_dose || ""}</em></small></td>
-            <td>${rev.comment || "Evaluated against label guidance."}</td>
+            <td>${rev.comment || "Verified against deterministic rules."}</td>
           </tr>
         `;
       }).join("");
@@ -619,11 +645,47 @@
       const citations = data.citations || [];
       citationsContainer.innerHTML = citations.map(c => `
         <div class="chunk-box">
-          <strong>${c.drug.toUpperCase()} (RxCUI: ${c.rxcui}) — Section: <code>${c.section}</code></strong>
-          <span style="float:right; color:var(--muted);">Source: ${c.source} | Label Date: ${c.label_version_date} | Retrieved: ${c.retrieved_on}</span>
+          <strong><code>${c.chunk_id || c.section}</code> — ${c.drug.toUpperCase()} (RxCUI: ${c.rxcui}, ATC: ${c.atc_code || '-'})</strong>
+          <span style="float:right; color:var(--muted);">Source: ${c.source} | Version: ${c.label_version_date}</span>
           <p style="margin:6px 0 0; color:#334155;">${c.excerpt}</p>
         </div>
       `).join("");
+    }
+
+    async function loadSystemTraces() {
+      const container = document.getElementById("traceLogsContainer");
+      container.innerHTML = `<p style="font-size:0.86rem; color:var(--muted);">Loading ISO-8601 system traces...</p>`;
+      try {
+        const res = await fetch("/api/logs?limit=20");
+        const data = await res.json();
+        const traces = data.traces || [];
+        if (!traces.length) {
+          container.innerHTML = `<p style="font-size:0.86rem; color:var(--muted);">No traces logged yet.</p>`;
+          return;
+        }
+        container.innerHTML = traces.map(t => {
+          const lat = t.latency_ms || {};
+          const inp = t.inputs || {};
+          const out = t.output_summary || {};
+          const mod = t.model_used || {};
+          return `
+            <div class="chunk-box">
+              <div style="display:flex; justify-content:space-between; flex-wrap:wrap;">
+                <strong><code>${t.trace_id}</code> | Patient: ${inp.patient_name} (${inp.patient_id}) &rarr; <span class="badge ${out.overall_status === 'ALL_RIGHT' ? 'badge-ok' : (out.overall_status === 'ALERT' ? 'badge-high' : 'badge-warn')}">${out.overall_status}</span></strong>
+                <span style="color:var(--muted);">${t.completed_at} | Total Latency: <strong>${lat.total_latency_ms} ms</strong></span>
+              </div>
+              <div style="margin-top:6px; font-size:0.8rem; color:#334155;">
+                <strong>Inputs:</strong> Meds=${JSON.stringify(inp.medications || [])} | Context=${JSON.stringify(inp.structured_context || {})}<br/>
+                <strong>Model:</strong> ${mod.model_name} (${mod.status}) | <strong>Sources:</strong> ${(t.sources_summary || []).join(", ")}<br/>
+                <strong>Latency Breakdown:</strong> RxNorm/ATC=${lat.rxnorm_atc_normalization_ms}ms, KB=${lat.kb_vector_retrieval_ms}ms, Rules=${lat.deterministic_rules_ms}ms, LLM=${lat.llm_explainer_inference_ms}ms<br/>
+                <strong>Alerts (${out.alerts_count}):</strong> ${JSON.stringify(out.alerts || [])}
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (e) {
+        container.innerHTML = `<p style="color:red;">Failed to load traces: ${e.message}</p>`;
+      }
     }
 
     async function inspectDrug(drugNameParam) {
@@ -632,28 +694,23 @@
       if (!name) return;
       input.value = name;
       const out = document.getElementById("drugInspectorOutput");
-      out.innerHTML = `<p style="font-size:0.88rem; color:var(--muted);">Fetching RxNorm + openFDA/DailyMed chunks for <strong>${name}</strong>...</p>`;
-
+      out.innerHTML = `<p style="font-size:0.88rem; color:var(--muted);">Fetching chunks for <strong>${name}</strong>...</p>`;
       try {
         const res = await fetch(`/api/drug/${encodeURIComponent(name)}`);
         const data = await res.json();
         const norm = data.normalization || {};
         const chunks = data.chunks || [];
-
         out.innerHTML = `
           <div class="chunk-box" style="background:#f8fafc;">
-            <strong>Normalized Generic:</strong> ${norm.generic_name} |
-            <strong>RxCUI:</strong> <code>${norm.rxcui}</code> |
-            <strong>Sample Brands:</strong> ${(norm.sample_brands || []).join(", ") || "N/A"} |
-            <strong>WHO EML:</strong> ${(data.who_eml || {}).eml_status || "N/A"}
+            <strong>Normalized Generic:</strong> ${norm.generic_name} | <strong>RxCUI:</strong> <code>${norm.rxcui}</code>
           </div>
           ${chunks.map(c => `
             <div class="chunk-box">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <strong>Section: <code>${c.section}</code> (${c.source} — Version: ${c.label_version_date})</strong>
+                <strong><code>${c.chunk_id}</code> (${c.source} — Version: ${c.label_version_date})</strong>
                 <button class="btn btn-secondary" style="padding:3px 8px; font-size:0.75rem;"
                   onclick="verifyChunk('${c.chunk_id}', ${!c.pharmacist_verified}, '${norm.generic_name}')">
-                  ${c.pharmacist_verified ? "✅ Pharmacist Verified" : "Mark Verified (Spot-Check)"}
+                  ${c.pharmacist_verified ? "✅ Pharmacist Verified" : "Mark Verified"}
                 </button>
               </div>
               <p style="margin:6px 0 0; white-space:pre-wrap;">${c.text}</p>
@@ -677,28 +734,27 @@
 
     async function seedMoreDrugs() {
       const out = document.getElementById("drugInspectorOutput");
-      out.innerHTML = `<p style="font-size:0.88rem; color:var(--muted);">Seeding core hospital formulary drugs from RxNorm + openFDA + DailyMed...</p>`;
+      out.innerHTML = `<p style="font-size:0.88rem; color:var(--muted);">Seeding core hospital formulary drugs...</p>`;
       await fetch("/api/seed", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ count: 8 })
       });
-      out.innerHTML = `<p style="font-size:0.88rem; color:green;">Starter formulary batch indexed into Vector DB!</p>`;
+      out.innerHTML = `<p style="font-size:0.88rem; color:green;">Starter formulary batch indexed!</p>`;
       refreshStatus();
     }
 
     function switchTab(tabId, btn) {
       document.getElementById("checkTab").classList.add("hidden");
       document.getElementById("kbTab").classList.add("hidden");
+      document.getElementById("logsTab").classList.add("hidden");
       document.getElementById(tabId).classList.remove("hidden");
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
     }
 
-    // Initialize default rows
-    loadPreset("interaction_alert");
+    loadPreset("safe_amox_ibu");
     refreshStatus();
   </script>
 </body>
 </html>
-

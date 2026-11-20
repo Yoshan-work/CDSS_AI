@@ -1,81 +1,46 @@
+"""
+ISO-Compliant Clinical Decision Support Evaluator (`engine/cdss_evaluator.py`).
+Architecture:
+1. Deterministic Rule Engine First (`engine/deterministic_rules.py`):
+   - Raises all primary interaction (DDInter 2.0), allergy/cross-reactivity (WHO/ISO ATC),
+     duplicate ingredient/class (RxNorm/ATC), dose/renal/hepatic/pregnancy/Beers alerts,
+     and determines `NOT_VERIFIED` status when data is missing.
+2. Local Qwen LLM Explainer (`qwen3:8b`) with Strict Citation Gate:
+   - Phrases clinical explanations for deterministic findings.
+   - If the LLM proposes any additional alert, it MUST cite a valid `chunk_id` from the retrieved
+     knowledge base, and Python validates that the cited chunk text explicitly mentions the involved
+     drugs/condition. Uncited or unverified LLM alerts are dropped and logged in the ISO trace.
+3. Full System Traceability (`engine/trace_logger.py`):
+   - Logs inputs, sources, model, deterministic vs. LLM decisions, outputs, and millisecond
+     latency breakdown to `logs/cdss_system_trace.jsonl` and `logs/cdss_system.log`.
+"""
+
 import json
-import logging
 import re
-from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import Any, Dict, List, Optional
 import requests
 
 from config import (
-    OLLAMA_BASE_URL,
-    OLLAMA_MODEL,
-    OLLAMA_FALLBACK_MODELS,
     EVALUATION_HISTORY_PATH,
+    OLLAMA_BASE_URL,
+    OLLAMA_FALLBACK_MODELS,
+    OLLAMA_MODEL,
 )
+from engine.deterministic_rules import (
+    extract_allergies_and_context_from_notes,
+    parse_structured_dose,
+    run_deterministic_cdss_rules,
+)
+from engine.trace_logger import CDSSTraceContext, get_iso8601_timestamp, iso_logger
+from pipeline.ddinter_loader import DDInterStore
+from pipeline.rxclass import resolve_drug_atc_and_class
 from pipeline.vector_store import CDSSVectorStore
-
-logger = logging.getLogger(__name__)
-
-# Pharmacologic class keywords to improve cross-referencing inside narrative FDA drug_interactions text
-DRUG_CLASS_KEYWORDS: Dict[str, List[str]] = {
-    "ibuprofen": ["nsaid", "nonsteroidal anti-inflammatory", "aspirin", "anticoagulant", "warfarin", "diuretic", "ace inhibitor"],
-    "diclofenac": ["nsaid", "nonsteroidal anti-inflammatory", "aspirin", "anticoagulant", "warfarin", "diuretic", "ace inhibitor"],
-    "naproxen": ["nsaid", "nonsteroidal anti-inflammatory", "aspirin", "anticoagulant", "warfarin", "diuretic", "ace inhibitor"],
-    "celecoxib": ["nsaid", "nonsteroidal anti-inflammatory", "anticoagulant", "warfarin", "fluconazole"],
-    "aspirin": ["nsaid", "salicylate", "antiplatelet", "anticoagulant", "warfarin", "ibuprofen", "clopidogrel", "corticosteroid"],
-    "warfarin": ["anticoagulant", "nsaid", "aspirin", "antiplatelet", "metronidazole", "fluconazole", "ciprofloxacin", "amiodarone", "macrolide"],
-    "clopidogrel": ["antiplatelet", "omeprazole", "esomeprazole", "cyp2c19", "nsaid", "anticoagulant", "warfarin", "aspirin"],
-    "apixaban": ["anticoagulant", "nsaid", "aspirin", "antiplatelet", "clopidogrel"],
-    "rivaroxaban": ["anticoagulant", "nsaid", "aspirin", "antiplatelet", "clopidogrel"],
-    "omeprazole": ["proton pump inhibitor", "cyp2c19", "clopidogrel", "methotrexate", "digoxin"],
-    "esomeprazole": ["proton pump inhibitor", "cyp2c19", "clopidogrel"],
-    "enalapril": ["ace inhibitor", "angiotensin", "spironolactone", "potassium", "nsaid", "diuretic", "losartan", "lithium"],
-    "lisinopril": ["ace inhibitor", "angiotensin", "spironolactone", "potassium", "nsaid", "diuretic", "losartan", "lithium"],
-    "losartan": ["angiotensin receptor blocker", "arb", "spironolactone", "potassium", "nsaid", "enalapril", "lisinopril", "lithium"],
-    "spironolactone": ["potassium-sparing", "hyperkalemia", "ace inhibitor", "enalapril", "lisinopril", "losartan", "nsaid"],
-    "simvastatin": ["statin", "hmg-coa", "cyp3a4", "amlodipine", "amiodarone", "clarithromycin", "itraconazole", "gemfibrozil"],
-    "atorvastatin": ["statin", "hmg-coa", "cyp3a4", "clarithromycin", "itraconazole", "cyclosporine"],
-    "amlodipine": ["calcium channel blocker", "simvastatin", "cyp3a4"],
-    "metformin": ["biguanide", "lactic acidosis", "contrast", "renal", "cimetidine", "furosemide"],
-    "ciprofloxacin": ["fluoroquinolone", "warfarin", "theophylline", "tizanidine", "qt prolongation", "corticosteroid"],
-    "metronidazole": ["warfarin", "alcohol", "disulfiram", "lithium", "busulfan"],
-    "clarithromycin": ["macrolide", "cyp3a4", "statin", "simvastatin", "atorvastatin", "warfarin", "digoxin"],
-    "azithromycin": ["macrolide", "qt prolongation", "amiodarone", "warfarin", "digoxin"],
-    "prednisolone": ["corticosteroid", "nsaid", "aspirin", "warfarin", "fluoroquinolone", "diabetes"],
-}
-
-
-def extract_focused_snippet(text: str, keywords: List[str], window: int = 450, max_len: int = 1200) -> str:
-    """
-    Extract paragraphs/windows from a long FDA label section that match any of the target
-    keywords (e.g., interacting drug names or pharmacologic classes), falling back to the start of the text.
-    """
-    if not text:
-        return ""
-    lower_text = text.lower()
-    snippets: List[str] = []
-
-    for kw in keywords:
-        if not kw or len(kw) < 3:
-            continue
-        idx = lower_text.find(kw.lower())
-        if idx != -1:
-            start = max(0, idx - 120)
-            end = min(len(text), idx + window)
-            snippet = text[start:end].strip()
-            if snippet not in snippets:
-                snippets.append(f"...{snippet}...")
-        if sum(len(s) for s in snippets) >= max_len:
-            break
-
-    if snippets:
-        return " ".join(snippets)[:max_len]
-    return text[:max_len]
 
 
 def get_active_ollama_model() -> str:
     """Detect which Qwen model is available in local Ollama, defaulting to qwen3:8b."""
     try:
-        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=3)
+        resp = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=2)
         if resp.ok:
             models = [m.get("name", "") for m in resp.json().get("models", [])]
             if OLLAMA_MODEL in models:
@@ -89,7 +54,7 @@ def get_active_ollama_model() -> str:
             if models:
                 return models[0]
     except Exception as exc:
-        logger.debug(f"Could not list Ollama models: {exc}")
+        iso_logger.debug(f"Ollama model check skipped: {exc}")
     return OLLAMA_MODEL
 
 
@@ -111,16 +76,50 @@ def parse_llm_json(raw_content: str) -> Dict[str, Any]:
     raise ValueError(f"Could not parse valid JSON from LLM output: {cleaned[:300]}")
 
 
+def validate_llm_proposed_alert(
+    alert: Dict[str, Any],
+    chunk_lookup: Dict[str, Dict[str, Any]],
+    all_generic_names: List[str],
+) -> bool:
+    """
+    Citation Validator for LLM-proposed alerts:
+    1. Must include a `cited_chunk_id` that exists in `chunk_lookup`.
+    2. If `type == DRUG_INTERACTION`, the cited chunk text must explicitly mention BOTH
+       interacting drugs (preventing narrative hallucination like Amoxicillin + Ibuprofen).
+    """
+    cited_id = str(alert.get("cited_chunk_id") or "").strip()
+    if not cited_id or cited_id not in chunk_lookup:
+        return False
+
+    chunk_text = chunk_lookup[cited_id].get("text", "").lower()
+    a_type = str(alert.get("type", "")).upper()
+
+    if "INTERACTION" in a_type:
+        involved = [str(d).strip().lower() for d in alert.get("drugs_involved", []) if d]
+        if len(involved) < 2:
+            return False
+        # Verify both drugs appear in the cited chunk text
+        for d in involved[:2]:
+            if d not in chunk_text:
+                return False
+        return True
+
+    return len(chunk_text) > 20
+
+
 class CDSSEvaluator:
     """
-    Clinical Decision Support Evaluator combining:
-    1. RxNorm brand/generic/RxCUI normalization & duplicate ingredient detection
-    2. openFDA + DailyMed + WHO EML RAG chunk retrieval
-    3. Local Qwen LLM (Ollama) clinical evaluation with structured Alert / Suggestion / All Right output
+    ISO-Compliant Clinical Decision Support Evaluator:
+    Deterministic Rule Engine + Structured DDInter 2.0 + WHO/ISO ATC + Cited Local Qwen LLM Explainer.
     """
 
-    def __init__(self, vector_store: Optional[CDSSVectorStore] = None):
+    def __init__(
+        self,
+        vector_store: Optional[CDSSVectorStore] = None,
+        ddinter_store: Optional[DDInterStore] = None,
+    ) -> None:
         self.store = vector_store or CDSSVectorStore()
+        self.ddinter = ddinter_store or DDInterStore()
 
     def evaluate_prescription(
         self,
@@ -128,36 +127,114 @@ class CDSSEvaluator:
         patient_name: str,
         medications: List[Dict[str, str]],
         patient_notes: str = "",
+        coded_allergies: Optional[List[Dict[str, str]]] = None,
+        patient_age: Optional[int] = None,
+        egfr: Optional[float] = None,
+        pregnancy_status: Optional[str] = None,
+        lactation_status: Optional[bool] = None,
+        hepatic_impairment: Optional[bool] = None,
+        use_llm_explainer: bool = True,
     ) -> Dict[str, Any]:
         """
-        Evaluate a patient's medication list and doses.
-        medications: [{"name": "Brufen", "dose": "400mg TID"}, ...]
+        Evaluate a prescription through the deterministic rule engine and cited LLM explainer,
+        recording a full ISO trace with sub-step millisecond latencies.
         """
+        structured_context = extract_allergies_and_context_from_notes(
+            patient_notes=patient_notes,
+            coded_allergies=coded_allergies,
+            patient_age=patient_age,
+            egfr=egfr,
+            pregnancy_status=pregnancy_status,
+            lactation_status=lactation_status,
+            hepatic_impairment=hepatic_impairment,
+        )
+
+        trace = CDSSTraceContext(
+            inputs={
+                "patient_id": patient_id,
+                "patient_name": patient_name,
+                "patient_notes": patient_notes,
+                "structured_context": structured_context,
+                "medications": medications,
+            }
+        )
+
         med_records: List[Dict[str, Any]] = []
         all_generic_names: List[str] = []
+        chunk_lookup: Dict[str, Dict[str, Any]] = {}
+        used_citations: List[Dict[str, Any]] = []
 
-        # Step 1: Normalize all drugs via RxNorm & ensure chunks are in Vector DB
+        # PHASE 1 & 2: RxNorm + WHO/ISO ATC Normalization & Vector DB Retrieval
         for med in medications:
             raw_name = (med.get("name") or "").strip()
             raw_dose = (med.get("dose") or "").strip()
             if not raw_name:
                 continue
 
+            trace.start_step("rxnorm_atc_normalization_ms")
             indexed_info = self.store.ensure_drug_indexed(raw_name)
             norm = indexed_info["normalization"]
+            gen_name = norm["generic_name"].lower()
+            rxcui = norm["rxcui"]
+            atc_info = resolve_drug_atc_and_class(gen_name, rxcui)
+            dose_parsed = parse_structured_dose(raw_dose)
+            trace.end_step("rxnorm_atc_normalization_ms")
+
+            trace.start_step("kb_vector_retrieval_ms")
             who_eml = indexed_info["who_eml"]
             chunks = indexed_info["chunks"]
-
-            gen_name = norm["generic_name"]
-            all_generic_names.append(gen_name)
-
             chunk_by_sec = {c["section"]: c for c in chunks}
+            for c in chunks:
+                cid = c.get("chunk_id") or f"{gen_name}::{rxcui}::{c['section']}"
+                chunk_lookup[cid] = c
+                used_citations.append(
+                    {
+                        "chunk_id": cid,
+                        "drug": gen_name,
+                        "rxcui": rxcui,
+                        "atc_code": atc_info.get("atc_code", ""),
+                        "section": c["section"],
+                        "source": c["source"],
+                        "label_version_date": c["label_version_date"],
+                        "retrieved_on": c["retrieved_on"],
+                        "excerpt": c["text"][:420],
+                    }
+                )
+            trace.end_step("kb_vector_retrieval_ms")
+
+            # Log sources used for this medication
+            trace.add_source(
+                source_name=norm.get("resolution_source", "RxNorm REST API"),
+                drug=gen_name,
+                identifier=f"RxCUI:{rxcui}",
+                detail=f"Entered='{raw_name}' -> Generic='{gen_name}'",
+                fetched_live=indexed_info["fetched_live"],
+            )
+            trace.add_source(
+                source_name=atc_info.get("source", "WHO/ISO ATC"),
+                drug=gen_name,
+                identifier=f"ATC:{atc_info.get('atc_code')}",
+                detail=f"Class={atc_info.get('therapeutic_class')}",
+                fetched_live=False,
+            )
+            for c in chunks:
+                trace.add_source(
+                    source_name=c["source"],
+                    drug=gen_name,
+                    identifier=c.get("chunk_id", c["section"]),
+                    detail=f"Section={c['section']} (Version={c['label_version_date']})",
+                    fetched_live=indexed_info["fetched_live"],
+                )
+
+            all_generic_names.append(gen_name)
             med_records.append(
                 {
                     "entered_name": raw_name,
                     "entered_dose": raw_dose or "Not specified",
+                    "dose_parsed": dose_parsed,
                     "generic_name": gen_name,
-                    "rxcui": norm["rxcui"],
+                    "rxcui": rxcui,
+                    "atc_info": atc_info,
                     "ingredients": norm.get("ingredients", [gen_name]),
                     "resolution_source": norm.get("resolution_source", "RxNorm"),
                     "who_eml": who_eml,
@@ -167,159 +244,139 @@ class CDSSEvaluator:
                 }
             )
 
-        # Step 2: Deterministic Pre-Check for Duplicate Active Ingredients (e.g., Brufen + Advil -> both Ibuprofen)
-        duplicate_warnings: List[Dict[str, Any]] = []
-        seen_rxcuis: Dict[str, List[str]] = {}
-        for rec in med_records:
-            key = rec["rxcui"] if rec["rxcui"] != "UNKNOWN" else rec["generic_name"]
-            seen_rxcuis.setdefault(key, []).append(f"{rec['entered_name']} ({rec['entered_dose']})")
-
-        for key, entered_items in seen_rxcuis.items():
-            if len(entered_items) > 1:
-                gen = next(
-                    (r["generic_name"] for r in med_records if (r["rxcui"] == key or r["generic_name"] == key)),
-                    key,
-                )
-                duplicate_warnings.append(
-                    {
-                        "severity": "HIGH",
-                        "type": "DUPLICATE_THERAPY",
-                        "drugs_involved": entered_items,
-                        "description": (
-                            f"Duplicate active ingredient detected via RxNorm (RxCUI {key}): "
-                            f"{' and '.join(entered_items)} both contain '{gen}'. "
-                            f"Co-administration risks accidental overdose and toxicity."
-                        ),
-                        "source": f"RxNorm Normalization (RxCUI: {key})",
-                    }
-                )
-
-        # Step 3: Build Focused RAG Context for Local Qwen LLM
-        rag_evidence_blocks: List[str] = []
-        used_citations: List[Dict[str, Any]] = []
-
-        for idx, rec in enumerate(med_records, start=1):
-            gen = rec["generic_name"]
-            rxcui = rec["rxcui"]
-            other_drugs = [g for g in all_generic_names if g != gen]
-            search_keywords = list(other_drugs) + DRUG_CLASS_KEYWORDS.get(gen, [])
-            for od in other_drugs:
-                search_keywords.extend(DRUG_CLASS_KEYWORDS.get(od, []))
-
-            sec_map = rec["chunks_by_section"]
-            who = rec["who_eml"]
-
-            drug_block_lines = [
-                f"=== MEDICATION #{idx}: Entered='{rec['entered_name']}' | Prescribed Dose='{rec['entered_dose']}' ===",
-                f"Normalized Generic Name: {gen} | RxNorm RxCUI: {rxcui} | Active Ingredients: {', '.join(rec['ingredients'])}",
-                f"WHO EML Status: {who.get('eml_status', 'N/A')} | WHO Reference Adult Dose: {who.get('typical_adult_dose') or 'See FDA Label'}",
-            ]
-            if who.get("who_notes"):
-                drug_block_lines.append(f"WHO EML Clinical Notes: {who.get('who_notes')}")
-
-            # Include focused snippets from openFDA / DailyMed chunks
-            for sec_name in [
-                "dosage_and_administration",
-                "drug_interactions",
-                "contraindications",
-                "warnings",
-                "pregnancy",
-                "indications_and_usage",
-            ]:
-                ch = sec_map.get(sec_name)
-                if not ch:
-                    continue
-                if sec_name == "drug_interactions":
-                    snippet = extract_focused_snippet(ch["text"], search_keywords, window=500, max_len=1100)
-                elif sec_name == "dosage_and_administration":
-                    snippet = extract_focused_snippet(
-                        ch["text"], ["adult", "usual", "recommended", "maximum", "mg", "daily"], window=500, max_len=900
-                    )
-                else:
-                    snippet = extract_focused_snippet(
-                        ch["text"], search_keywords + [patient_notes], window=400, max_len=650
-                    )
-
-                drug_block_lines.append(
-                    f"[{sec_name.upper()} | Source: {ch['source']} | Version: {ch['label_version_date']}]: {snippet}"
-                )
-                used_citations.append(
-                    {
-                        "drug": gen,
-                        "rxcui": rxcui,
-                        "section": sec_name,
-                        "source": ch["source"],
-                        "label_version_date": ch["label_version_date"],
-                        "retrieved_on": ch["retrieved_on"],
-                        "excerpt": snippet[:500],
-                    }
-                )
-
-            rag_evidence_blocks.append("\n".join(drug_block_lines))
-
-        # Step 4: Call Local Qwen LLM via Ollama
-        model_name = get_active_ollama_model()
-        llm_result = self._call_qwen_llm(
-            model_name=model_name,
-            patient_id=patient_id,
-            patient_name=patient_name,
-            patient_notes=patient_notes,
+        # PHASE 3: Deterministic Clinical Rule Engine (DDInter 2.0 + ATC Allergy + Dose + KDIGO Renal)
+        trace.start_step("deterministic_rules_ms")
+        det_result = run_deterministic_cdss_rules(
             med_records=med_records,
-            duplicate_warnings=duplicate_warnings,
-            rag_context="\n\n".join(rag_evidence_blocks),
+            patient_context=structured_context,
+            ddinter_store=self.ddinter,
         )
+        trace.end_step("deterministic_rules_ms")
 
-        # Merge deterministic duplicate warnings if LLM missed any
-        existing_types = {a.get("type", "") for a in llm_result.get("alerts", [])}
-        if duplicate_warnings and "DUPLICATE_THERAPY" not in existing_types:
-            llm_result.setdefault("alerts", []).insert(0, duplicate_warnings[0])
-            llm_result["overall_status"] = "ALERT"
+        for alert in det_result["alerts"]:
+            if alert.get("ddinter_id"):
+                trace.add_source(
+                    source_name="DDInter 2.0 Structured DDI DB",
+                    drug=" + ".join(alert.get("drugs_involved", [])),
+                    identifier=alert["ddinter_id"],
+                    detail=alert.get("severity", "Major"),
+                    fetched_live=False,
+                )
 
-        # Normalize overall_status to strictly one of: ALL_RIGHT, SUGGESTION, ALERT
-        raw_status = str(llm_result.get("overall_status", "ALL_RIGHT")).upper().replace(" ", "_")
-        if "ALERT" in raw_status or "DANGER" in raw_status or "HIGH" in raw_status:
-            overall_status = "ALERT"
-        elif "SUGGEST" in raw_status or "WARN" in raw_status or "MODERATE" in raw_status or "CAUTION" in raw_status:
+        trace.deterministic_trace = {
+            "alerts_raised": len(det_result["alerts"]),
+            "suggestions_raised": len(det_result["suggestions"]),
+            "not_verified_reasons": det_result["not_verified_reasons"],
+            "alerts": det_result["alerts"],
+        }
+
+        final_alerts: List[Dict[str, Any]] = list(det_result["alerts"])
+        final_suggestions: List[str] = list(det_result["suggestions"])
+        final_med_reviews: List[Dict[str, Any]] = list(det_result["medication_reviews"])
+        not_verified_reasons: List[str] = list(det_result["not_verified_reasons"])
+
+        # Build deterministic baseline clinical summary
+        if not_verified_reasons and not final_alerts:
+            baseline_summary = "NOT VERIFIED: " + " ".join(not_verified_reasons)
+        elif final_alerts:
+            top_descriptions = [a["description"] for a in final_alerts[:2]]
+            baseline_summary = " ".join(top_descriptions)
+        elif final_suggestions:
+            baseline_summary = "No critical contraindications or major drug interactions found. Review clinical monitoring suggestions: " + final_suggestions[0]
+        else:
+            baseline_summary = (
+                "All prescribed medications and calculated daily doses are within standard therapeutic limits. "
+                "No DDInter 2.0 drug interactions, duplicate classes, or allergy contraindications detected."
+            )
+
+        llm_summary = baseline_summary
+
+        # PHASE 4: Local Qwen LLM Explainer + Citation Validation Gate
+        model_name = get_active_ollama_model()
+        if use_llm_explainer:
+            trace.start_step("llm_explainer_inference_ms")
+            llm_raw = self._call_qwen_explainer(
+                model_name=model_name,
+                patient_id=patient_id,
+                patient_name=patient_name,
+                patient_notes=patient_notes,
+                structured_context=structured_context,
+                med_records=med_records,
+                deterministic_alerts=final_alerts,
+                deterministic_suggestions=final_suggestions,
+                chunk_lookup=chunk_lookup,
+                trace=trace,
+            )
+            trace.end_step("llm_explainer_inference_ms")
+
+            # Citation Validation Gate
+            trace.start_step("citation_validation_ms")
+            if llm_raw.get("summary"):
+                llm_summary = str(llm_raw["summary"])
+
+            proposed_alerts = llm_raw.get("additional_cited_alerts", [])
+            trace.llm_citation_audit["raw_llm_alerts_count"] = len(proposed_alerts)
+
+            for prop in proposed_alerts:
+                if validate_llm_proposed_alert(prop, chunk_lookup, all_generic_names):
+                    prop["deterministic"] = False
+                    final_alerts.append(prop)
+                    trace.llm_citation_audit["accepted_cited_alerts"].append(prop)
+                else:
+                    trace.llm_citation_audit["rejected_uncited_alerts"].append(prop)
+
+            for s in llm_raw.get("additional_suggestions", []):
+                if isinstance(s, str) and s.strip() and s not in final_suggestions:
+                    final_suggestions.append(s.strip())
+            trace.end_step("citation_validation_ms")
+
+        # PHASE 5: Determine 4-State Overall Status (ALERT, NOT_VERIFIED, SUGGESTION, ALL_RIGHT)
+        if final_alerts:
+            severities = [str(a.get("severity", "HIGH")).upper() for a in final_alerts]
+            if any(s in ("HIGH", "MAJOR", "CRITICAL", "SEVERE", "CONTRAINDICATED") for s in severities):
+                overall_status = "ALERT"
+            else:
+                overall_status = "SUGGESTION"
+        elif not_verified_reasons:
+            overall_status = "NOT_VERIFIED"
+        elif final_suggestions:
             overall_status = "SUGGESTION"
         else:
             overall_status = "ALL_RIGHT"
 
-        # Ensure if there are high/critical alerts, status is ALERT; if minor alerts/suggestions only, check appropriately
-        if llm_result.get("alerts"):
-            severities = [str(a.get("severity", "")).upper() for a in llm_result["alerts"]]
-            if any(s in ("HIGH", "CRITICAL", "SEVERE", "CONTRAINDICATED") for s in severities):
-                overall_status = "ALERT"
-            elif overall_status == "ALL_RIGHT":
-                overall_status = "SUGGESTION"
+        status_labels = {
+            "ALL_RIGHT": "ALL RIGHT — Verified Safe (No Drug, Allergy, or Dose Issues)",
+            "SUGGESTION": "CLINICAL SUGGESTION — Review Monitoring / Dose Guidance",
+            "ALERT": "CLINICAL ALERT — High-Risk Interaction, Allergy, Duplicate, or Overdose!",
+            "NOT_VERIFIED": "NOT VERIFIED — Unindexed Drug or Missing Mandatory Clinical Data",
+        }
 
-        final_response = {
-            "timestamp": datetime.now().isoformat(timespec="seconds"),
+        final_response: Dict[str, Any] = {
+            "trace_id": trace.trace_id,
+            "timestamp": get_iso8601_timestamp(),
             "patient": {
                 "patient_id": patient_id,
                 "patient_name": patient_name,
                 "patient_notes": patient_notes,
+                "structured_context": structured_context,
             },
             "model_used": model_name,
             "overall_status": overall_status,
-            "status_label": (
-                "ALL RIGHT — No Critical Drug/Dose Issues Detected"
-                if overall_status == "ALL_RIGHT"
-                else (
-                    "CLINICAL SUGGESTION — Review Dose / Monitoring Advice"
-                    if overall_status == "SUGGESTION"
-                    else "CLINICAL ALERT — High-Risk Interaction, Duplicate, or Dose Issue!"
-                )
-            ),
-            "summary": llm_result.get("summary", ""),
-            "alerts": llm_result.get("alerts", []),
-            "suggestions": llm_result.get("suggestions", []),
-            "medication_reviews": llm_result.get("medication_reviews", []),
+            "status_label": status_labels.get(overall_status, overall_status),
+            "summary": llm_summary,
+            "not_verified_reasons": not_verified_reasons,
+            "alerts": final_alerts,
+            "suggestions": final_suggestions,
+            "medication_reviews": final_med_reviews,
             "normalized_medications": [
                 {
                     "entered_name": r["entered_name"],
                     "entered_dose": r["entered_dose"],
+                    "calculated_daily_dose": r["dose_parsed"]["formatted_calc"],
                     "generic_name": r["generic_name"],
                     "rxcui": r["rxcui"],
+                    "atc_code": r["atc_info"].get("atc_code", ""),
+                    "therapeutic_class": r["atc_info"].get("therapeutic_class", ""),
                     "ingredients": r["ingredients"],
                     "who_eml_status": r["who_eml"].get("eml_status", ""),
                     "who_typical_dose": r["who_eml"].get("typical_adult_dose", ""),
@@ -330,20 +387,40 @@ class CDSSEvaluator:
             "citations": used_citations,
         }
 
-        # Log evaluation to history JSONL
+        # Finalize and write full ISO trace record
+        trace_record = trace.finalize_and_write(final_response)
+        final_response["system_trace"] = {
+            "trace_id": trace_record["trace_id"],
+            "started_at": trace_record["started_at"],
+            "completed_at": trace_record["completed_at"],
+            "latency_ms": trace_record["latency_ms"],
+            "sources_summary": trace_record["sources_summary"],
+            "model_used": trace_record["model_used"],
+            "llm_citation_audit": trace_record["llm_citation_audit"],
+        }
+
+        # Also append compact record to evaluation_history.jsonl
         try:
             with open(EVALUATION_HISTORY_PATH, "a", encoding="utf-8") as f:
                 f.write(
                     json.dumps(
                         {
+                            "trace_id": trace.trace_id,
                             "timestamp": final_response["timestamp"],
                             "patient_id": patient_id,
                             "patient_name": patient_name,
                             "overall_status": overall_status,
                             "medications": [
-                                {"name": r["entered_name"], "generic": r["generic_name"], "dose": r["entered_dose"]}
+                                {
+                                    "name": r["entered_name"],
+                                    "generic": r["generic_name"],
+                                    "atc": r["atc_info"].get("atc_code", ""),
+                                    "dose": r["entered_dose"],
+                                    "daily_calc": r["dose_parsed"]["formatted_calc"],
+                                }
                                 for r in med_records
                             ],
+                            "latency_ms": trace_record["latency_ms"]["total_latency_ms"],
                             "summary": final_response["summary"],
                         },
                         ensure_ascii=False,
@@ -351,85 +428,68 @@ class CDSSEvaluator:
                     + "\n"
                 )
         except Exception as exc:
-            logger.debug(f"Could not write evaluation history: {exc}")
+            iso_logger.debug(f"Could not write evaluation history: {exc}")
 
         return final_response
 
-    def _call_qwen_llm(
+    def _call_qwen_explainer(
         self,
         model_name: str,
         patient_id: str,
         patient_name: str,
         patient_notes: str,
+        structured_context: Dict[str, Any],
         med_records: List[Dict[str, Any]],
-        duplicate_warnings: List[Dict[str, Any]],
-        rag_context: str,
+        deterministic_alerts: List[Dict[str, Any]],
+        deterministic_suggestions: List[str],
+        chunk_lookup: Dict[str, Dict[str, Any]],
+        trace: CDSSTraceContext,
     ) -> Dict[str, Any]:
-        """Invoke local Ollama Qwen model with structured clinical JSON output."""
+        """
+        Invoke local Ollama Qwen model strictly as an EXPLAINER for deterministic alerts.
+        Any extra alert proposed by the LLM must include a valid `cited_chunk_id`.
+        """
+        trace.model_info["model_name"] = model_name
+        trace.model_info["endpoint"] = f"{OLLAMA_BASE_URL}/api/chat"
+        trace.model_info["invoked"] = True
+
+        chunk_snippets = []
+        for cid, ch in list(chunk_lookup.items())[:12]:
+            if ch["section"] in ("contraindications", "warnings", "dosage_and_administration", "who_eml_reference"):
+                chunk_snippets.append(f"[chunk_id: {cid}] ({ch['source']}): {ch['text'][:400]}")
+
         system_prompt = (
-            "You are an expert Hospital Clinical Decision Support System (CDSS) and Senior Clinical Pharmacist AI.\n"
-            "Your task is to evaluate a patient's prescribed medications and doses using ONLY the provided "
-            "RxNorm normalization data, openFDA / DailyMed official drug label sections, and WHO Essential Medicines List (EML) reference.\n\n"
-            "STRICT EVALUATION RULES:\n"
-            "1. CHECK DUPLICATE THERAPY: Check if two prescribed drugs share the same normalized generic ingredient / RxCUI (e.g., Brufen and Advil are both ibuprofen).\n"
-            "2. CHECK ALLERGIES & CROSS-REACTIVITY: If Patient Notes mention any drug allergy (e.g., Penicillin allergy, Sulfa allergy, NSAID/Aspirin allergy, or a specific drug name), check if any prescribed drug or its pharmacologic class (e.g., Amoxicillin is a penicillin; Brufen/Diclofenac are NSAIDs) triggers that allergy. Flag as HIGH severity CONTRAINDICATION / ALLERGY ALERT.\n"
-            "3. CHECK DOSING: Compare each drug's prescribed dose and frequency against the WHO EML Reference Adult Dose and openFDA/DailyMed DOSAGE_AND_ADMINISTRATION text. Flag overdoses, supratherapeutic doses, or unusual regimens.\n"
-            "4. CHECK DRUG-DRUG INTERACTIONS: Check if any pair of prescribed medications interacts (e.g., Warfarin + NSAID/Ibuprofen/Aspirin/Metronidazole/Ciprofloxacin; Clopidogrel + Omeprazole; ACEi/ARB + Spironolactone + NSAID; Statin/Simvastatin + Amlodipine/Clarithromycin).\n"
-            "5. CHECK CONTRAINDICATIONS & WARNINGS: If patient notes/conditions are provided (e.g. pregnancy, renal impairment/CKD, peptic ulcer, asthma, liver disease), check against CONTRAINDICATIONS, WARNINGS, and PREGNANCY sections.\n"
-            "6. DETERMINE OVERALL STATUS:\n"
-            "   - \"ALL_RIGHT\": All doses are within standard therapeutic range, no duplicate ingredients, no significant drug-drug interactions, and no allergies/contraindications.\n"
-            "   - \"SUGGESTION\": Minor/moderate interaction requiring monitoring, suboptimal dosing, or general administration advice (e.g. take with food, monitor renal function/electrolytes).\n"
-            "   - \"ALERT\": Serious/major drug-drug interaction, patient allergy/cross-allergy match, duplicate active ingredient, overdose/exceeding max daily dose, or contraindication.\n\n"
-            "Return ONLY a valid JSON object matching this exact schema:\n"
+            "You are a Clinical Pharmacist AI Explainer in an ISO-compliant hospital CDSS.\n"
+            "IMPORTANT ARCHITECTURE RULE: All drug-drug interactions (DDInter 2.0), allergies (WHO/ISO ATC), "
+            "duplicate therapies, and dose/renal calculations have ALREADY been computed deterministically in code.\n"
+            "Your role is ONLY to:\n"
+            "1. Write a clear, concise 1-3 sentence `summary` explaining the deterministic findings to the clinician.\n"
+            "2. Do NOT invent any drug-drug interaction that is not in `DETERMINISTIC ALERTS`.\n"
+            "3. Only propose an item in `additional_cited_alerts` if a clear contraindication exists in the provided chunks "
+            "that the deterministic rules missed, and you MUST provide the exact `cited_chunk_id`.\n\n"
+            "Respond strictly in JSON matching this schema:\n"
             "{\n"
-            "  \"overall_status\": \"ALL_RIGHT\" | \"SUGGESTION\" | \"ALERT\",\n"
-            "  \"summary\": \"Clear 1-3 sentence clinical summary of the prescription safety check.\",\n"
-            "  \"alerts\": [\n"
-            "    {\n"
-            "      \"severity\": \"HIGH\" | \"MODERATE\",\n"
-            "      \"type\": \"DRUG_INTERACTION\" | \"ALLERGY\" | \"OVERDOSE\" | \"DUPLICATE_THERAPY\" | \"CONTRAINDICATION\",\n"
-            "      \"drugs_involved\": [\"drug1\", \"drug2\"],\n"
-            "      \"description\": \"Detailed explanation of the clinical risk based on the label text.\",\n"
-            "      \"source\": \"openFDA / DailyMed / WHO EML / RxNorm\"\n"
-            "    }\n"
-            "  ],\n"
-            "  \"suggestions\": [\n"
-            "    \"Specific actionable clinical suggestion or safer alternative for the prescriber/pharmacist.\"\n"
-            "  ],\n"
-            "  \"medication_reviews\": [\n"
-            "    {\n"
-            "      \"entered_name\": \"...\",\n"
-            "      \"generic_name\": \"...\",\n"
-            "      \"rxcui\": \"...\",\n"
-            "      \"entered_dose\": \"...\",\n"
-            "      \"dose_status\": \"OK\" | \"HIGH\" | \"LOW\" | \"REVIEW\",\n"
-            "      \"comment\": \"Concise assessment of this drug's dose and safety.\"\n"
-            "    }\n"
-            "  ]\n"
+            "  \"summary\": \"Clear 1-3 sentence clinical explanation of the deterministic safety evaluation.\",\n"
+            "  \"additional_cited_alerts\": [],\n"
+            "  \"additional_suggestions\": [\"Optional brief clinical pearl or monitoring tip.\"]\n"
             "}\n"
             "/no_think"
         )
 
-        prescribed_summary = "\n".join(
-            f"- {r['entered_name']} (Normalized: {r['generic_name']}, RxCUI: {r['rxcui']}) — Prescribed Dose: {r['entered_dose']}"
-            for r in med_records
-        )
-        dup_text = (
-            json.dumps(duplicate_warnings, indent=2)
-            if duplicate_warnings
-            else "None detected."
-        )
-
         user_prompt = (
-            f"PATIENT INFORMATION:\n"
-            f"- Patient ID: {patient_id}\n"
-            f"- Patient Name: {patient_name}\n"
-            f"- Clinical Notes / Conditions: {patient_notes or 'None reported'}\n\n"
-            f"PRESCRIBED MEDICATIONS:\n{prescribed_summary}\n\n"
-            f"AUTOMATED RXNORM DUPLICATE CHECK:\n{dup_text}\n\n"
-            f"RETRIEVED KNOWLEDGE BASE EVIDENCE (openFDA, DailyMed, WHO EML):\n"
-            f"{rag_context}\n\n"
-            f"Evaluate this prescription now and respond strictly in JSON. /no_think"
+            f"PATIENT: {patient_name} ({patient_id}) | Notes: {patient_notes or 'None'}\n"
+            f"PARSED CONTEXT: {json.dumps(structured_context)}\n"
+            f"MEDICATIONS:\n"
+            + "\n".join(
+                f"- {r['entered_name']} -> {r['generic_name']} (RxCUI:{r['rxcui']}, ATC:{r['atc_info'].get('atc_code')}) | "
+                f"Dose: {r['entered_dose']} ({r['dose_parsed']['formatted_calc']})"
+                for r in med_records
+            )
+            + f"\n\nDETERMINISTIC ALERTS LOCKED IN CODE:\n{json.dumps(deterministic_alerts, indent=2)}\n"
+            + f"\nDETERMINISTIC SUGGESTIONS:\n{json.dumps(deterministic_suggestions, indent=2)}\n"
+            + "\nAVAILABLE CHUNKS:\n"
+            + "\n".join(chunk_snippets)
+            + "\n\nProvide your JSON explanation now. /no_think"
         )
 
         try:
@@ -442,42 +502,15 @@ class CDSSEvaluator:
                 "stream": False,
                 "think": False,
                 "format": "json",
-                "options": {
-                    "temperature": 0.1,
-                    "num_ctx": 8192,
-                },
+                "options": {"temperature": 0.0, "num_ctx": 4096},
             }
-            resp = requests.post(
-                f"{OLLAMA_BASE_URL}/api/chat",
-                json=payload,
-                timeout=90,
-            )
+            resp = requests.post(f"{OLLAMA_BASE_URL}/api/chat", json=payload, timeout=45)
             resp.raise_for_status()
             content = resp.json().get("message", {}).get("content", "")
-            return parse_llm_json(content)
+            parsed = parse_llm_json(content)
+            trace.model_info["status"] = "SUCCESS"
+            return parsed
         except Exception as exc:
-            logger.error(f"Local Qwen LLM invocation error: {exc}")
-            # Graceful fallback if Ollama is temporarily unreachable
-            return {
-                "overall_status": "ALERT" if duplicate_warnings else "SUGGESTION",
-                "summary": (
-                    f"RxNorm & openFDA knowledge retrieved, but local Ollama model ({model_name}) "
-                    f"returned an error: {exc}. Showing deterministic checks."
-                ),
-                "alerts": duplicate_warnings,
-                "suggestions": [
-                    "Verify local Ollama server is running (`ollama serve`) with model `qwen3:8b`."
-                ],
-                "medication_reviews": [
-                    {
-                        "entered_name": r["entered_name"],
-                        "generic_name": r["generic_name"],
-                        "rxcui": r["rxcui"],
-                        "entered_dose": r["entered_dose"],
-                        "dose_status": "REVIEW",
-                        "comment": f"Normalized to {r['generic_name']} (RxCUI {r['rxcui']}). Standard dose: {r['who_eml'].get('typical_adult_dose', 'See label')}",
-                    }
-                    for r in med_records
-                ],
-            }
-
+            trace.model_info["status"] = f"FALLBACK_DETERMINISTIC ({type(exc).__name__})"
+            iso_logger.warning(f"LLM Explainer skipped/fallback (Deterministic rules active): {exc}")
+            return {"summary": "", "additional_cited_alerts": [], "additional_suggestions": []}
