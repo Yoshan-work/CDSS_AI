@@ -1,0 +1,149 @@
+{
+  "source": "WHO Model List of Essential Medicines (23rd List Reference + Sri Lanka National Formulary Cross-Reference)",
+  "licence_note": "WHO Essential Medicines List (Non-commercial / clinical reference use). Check NMRA Sri Lanka for local registered brand packs.",
+  "medicines": {
+    "ibuprofen": {
+      "eml_status": "Core List",
+      "section": "2.1 Non-opioid analgesics and NSAIDs",
+      "recommended_indications": "Acute/chronic pain, fever, inflammatory conditions, migraine",
+      "who_notes": "Not recommended in children under 3 months. Avoid in active peptic ulceration, severe heart/renal/hepatic failure, and third trimester of pregnancy.",
+      "typical_adult_dose": "200 mg to 400 mg orally every 4-6 hours as needed (max 1200 mg/day OTC; up to 2400 mg/day under medical supervision)."
+    },
+    "acetaminophen": {
+      "inn_alias": "paracetamol",
+      "eml_status": "Core List",
+      "section": "2.1 Non-opioid analgesics and NSAIDs",
+      "recommended_indications": "Mild to moderate pain, pyrexia (fever)",
+      "who_notes": "First-line analgesic/antipyretic. Hepatotoxicity risk in overdose (>4000 mg/day in adults) or hepatic impairment.",
+      "typical_adult_dose": "500 mg to 1000 mg every 4-6 hours as needed (Maximum 4000 mg/24 hours; 2000 mg/24 hours in chronic liver disease)."
+    },
+    "aspirin": {
+      "inn_alias": "acetylsalicylic acid",
+      "eml_status": "Core List",
+      "section": "12.5 Antiplatelet medicines / 2.1 Non-opioid analgesics",
+      "recommended_indications": "Acute coronary syndrome, secondary cardiovascular prevention, acute migraine/pain",
+      "who_notes": "Contraindicated in children <16 years due to Reye syndrome risk, active GI bleeding, hemophilia. Increased bleeding risk with anticoagulants (warfarin, DOACs) and other NSAIDs.",
+      "typical_adult_dose": "Antiplatelet: 75 mg to 100 mg once daily (150-300 mg loading dose in ACS). Analgesic: 300-600 mg every 4-6 hours (max 4000 mg/day)."
+    },
+    "diclofenac": {
+      "eml_status": "Not on WHO EML (Replaced by ibuprofen/naproxen due to CV risk; widely used in Sri Lanka NMRA formulary)",
+      "section": "NSAIDs (Local Formulary Reference)",
+      "recommended_indications": "Acute musculoskeletal pain, osteoarthritis, rheumatoid arthritis",
+      "who_notes": "Higher cardiovascular thrombotic risk and GI ulceration risk compared to ibuprofen/naproxen. Contraindicated in established ischemic heart disease, cerebrovascular disease, and active GI bleed.",
+      "typical_adult_dose": "50 mg orally 2-3 times daily (Maximum 150 mg/day)."
+    },
+    "warfarin": {
+      "eml_status": "Core List",
+      "section": "10.2 Medicines affecting coagulation",
+      "recommended_indications": "Venous thromboembolism (DVT/PE), atrial fibrillation, mechanical heart valves",
+      "who_notes": "Narrow therapeutic index; requires regular INR monitoring. Major bleeding risk when combined with NSAIDs (ibuprofen, diclofenac, naproxen, aspirin), antiplatelets, metronidazole, fluconazole, macrolides, or amiodarone. Teratogenic in pregnancy.",
+      "typical_adult_dose": "Typically 2 mg to 10 mg orally once daily, strictly individualized according to INR target (usually 2.0-3.0)."
+    },
+    "clopidogrel": {
+      "eml_status": "Core List",
+      "section": "12.5 Antiplatelet medicines",
+      "recommended_indications": "Acute coronary syndrome, coronary stenting, secondary stroke/MI prevention",
+      "who_notes": "CYP2C19 prodrug: avoid concomitant omeprazole or esomeprazole which inhibit CYP2C19 and reduce antiplatelet efficacy (use pantoprazole or famotidine instead). High bleeding risk with anticoagulants and NSAIDs.",
+      "typical_adult_dose": "75 mg orally once daily (300-600 mg loading dose in ACS)."
+    },
+    "amoxicillin": {
+      "eml_status": "Core List (AWaRe: Access group)",
+      "section": "6.2.1 Access group antibiotics",
+      "recommended_indications": "Community-acquired pneumonia, otitis media, sinusitis, strep pharyngitis, H. pylori eradication",
+      "who_notes": "First-choice Access antibiotic. Contraindicated in patients with history of penicillin hypersensitivity/anaphylaxis.",
+      "typical_adult_dose": "250 mg to 500 mg every 8 hours, or 500 mg to 1000 mg every 12 hours."
+    },
+    "azithromycin": {
+      "eml_status": "Core List (AWaRe: Watch group)",
+      "section": "6.2.2 Watch group antibiotics",
+      "recommended_indications": "Atypical pneumonia, chlamydia, cholera, enteric fever (typhoid)",
+      "who_notes": "Watch group antibiotic—reserve for specific indications due to resistance risk. Prolongs QT interval; caution with other QT-prolonging drugs (amiodarone, ondansetron, fluoroquinolones).",
+      "typical_adult_dose": "500 mg once daily for 3 days, or 500 mg on day 1 followed by 250 mg on days 2-5."
+    },
+    "ciprofloxacin": {
+      "eml_status": "Core List (AWaRe: Watch group)",
+      "section": "6.2.2 Watch group antibiotics",
+      "recommended_indications": "Complicated UTI, pyelonephritis, invasive gastrointestinal infections, Pseudomonas infections",
+      "who_notes": "Risk of tendinitis/tendon rupture, peripheral neuropathy, CNS effects, and QT prolongation. Chelated by antacids, calcium, iron, zinc (separate doses by 2 hours). Inhibits CYP1A2 and increases warfarin bleeding risk.",
+      "typical_adult_dose": "250 mg to 750 mg orally every 12 hours depending on infection severity."
+    },
+    "metronidazole": {
+      "eml_status": "Core List (AWaRe: Access group)",
+      "section": "6.2.1 Access group antibiotics / Antiprotozoal",
+      "recommended_indications": "Anaerobic bacterial infections, C. difficile, amoebiasis, giardiasis, trichomoniasis",
+      "who_notes": "Strict alcohol avoidance (disulfiram-like reaction during and 48h after therapy). Potentiates warfarin anticoagulant effect (increases INR/bleeding).",
+      "typical_adult_dose": "400 mg to 500 mg orally every 8 hours (or 7.5 mg/kg every 8 hours; max 4000 mg/day)."
+    },
+    "metformin": {
+      "eml_status": "Core List",
+      "section": "18.5 Medicines for diabetes",
+      "recommended_indications": "First-line management of Type 2 Diabetes Mellitus",
+      "who_notes": "Contraindicated in severe renal impairment (eGFR < 30 mL/min/1.73m2), acute metabolic acidosis, or decompensated heart/liver failure due to lactic acidosis risk. Hold prior to iodinated contrast procedures if eGFR < 60.",
+      "typical_adult_dose": "Start 500 mg once or twice daily with meals; titrate up to maximum 2000-2550 mg/day in divided doses."
+    },
+    "amlodipine": {
+      "eml_status": "Core List",
+      "section": "12.3 Antihypertensive medicines",
+      "recommended_indications": "Hypertension, chronic stable or vasospastic angina",
+      "who_notes": "Calcium channel blocker. Limits simvastatin co-administration dose to max 20 mg/day due to myopathy/rhabdomyolysis risk.",
+      "typical_adult_dose": "5 mg once daily; may increase to maximum 10 mg once daily."
+    },
+    "losartan": {
+      "eml_status": "Core List",
+      "section": "12.3 Antihypertensive medicines (ARB)",
+      "recommended_indications": "Hypertension, diabetic nephropathy, heart failure",
+      "who_notes": "Contraindicated in pregnancy (fetotoxic). Avoid combining with ACE inhibitors (enalapril/lisinopril). Monitor potassium and renal function, especially if combined with spironolactone or NSAIDs ('triple whammy' acute kidney injury risk).",
+      "typical_adult_dose": "50 mg once daily (25 mg in volume depletion); max 100 mg/day."
+    },
+    "enalapril": {
+      "eml_status": "Core List",
+      "section": "12.3 Antihypertensive medicines (ACE Inhibitor)",
+      "recommended_indications": "Hypertension, heart failure with reduced ejection fraction, proteinuric CKD",
+      "who_notes": "Contraindicated in pregnancy, history of angioedema, bilateral renal artery stenosis. High hyperkalemia risk with spironolactone/potassium supplements; acute kidney injury risk with NSAIDs + diuretics.",
+      "typical_adult_dose": "2.5 mg to 5 mg once or twice daily, titrated up to 10-20 mg twice daily (max 40 mg/day)."
+    },
+    "furosemide": {
+      "eml_status": "Core List",
+      "section": "16 Diuretics",
+      "recommended_indications": "Edema due to heart failure, hepatic cirrhosis, renal disease; acute pulmonary edema",
+      "who_notes": "Monitor electrolytes (hypokalemia, hyponatremia), fluid status, and renal function. Ototoxicity risk at high IV doses or with aminoglycosides.",
+      "typical_adult_dose": "20 mg to 80 mg orally once or twice daily, titrated to clinical response (max 600 mg/day in severe edematous states)."
+    },
+    "spironolactone": {
+      "eml_status": "Core List",
+      "section": "16 Diuretics (Aldosterone antagonist)",
+      "recommended_indications": "Heart failure (HFrEF), ascites in cirrhosis, primary hyperaldosteronism, resistant hypertension",
+      "who_notes": "Risk of severe hyperkalemia, especially in renal impairment or when combined with ACE inhibitors (enalapril/lisinopril) or ARBs (losartan/valsartan).",
+      "typical_adult_dose": "Heart failure: 25 mg to 50 mg once daily. Cirrhosis/ascites: 100 mg to 400 mg/day."
+    },
+    "atorvastatin": {
+      "eml_status": "Core List",
+      "section": "12.6 Lipid-lowering agents",
+      "recommended_indications": "Hypercholesterolemia, primary and secondary prevention of cardiovascular events",
+      "who_notes": "Contraindicated in active liver disease and pregnancy. Risk of myopathy/rhabdomyolysis increased by CYP3A4 inhibitors (clarithromycin, itraconazole, cyclosporine, gemfibrozil).",
+      "typical_adult_dose": "10 mg to 80 mg orally once daily."
+    },
+    "simvastatin": {
+      "eml_status": "Core List",
+      "section": "12.6 Lipid-lowering agents",
+      "recommended_indications": "Hypercholesterolemia, cardiovascular risk reduction",
+      "who_notes": "Strong CYP3A4 substrate: contraindicated with strong CYP3A4 inhibitors (clarithromycin, itraconazole). Do not exceed 20 mg daily when co-administered with amlodipine or amiodarone.",
+      "typical_adult_dose": "10 mg to 40 mg orally once daily in the evening (80 mg restricted due to myopathy risk)."
+    },
+    "omeprazole": {
+      "eml_status": "Core List",
+      "section": "17.1 Antiulcer medicines (Proton Pump Inhibitor)",
+      "recommended_indications": "Peptic ulcer disease, GERD, Zollinger-Ellison syndrome, NSAID ulcer prophylaxis, H. pylori eradication",
+      "who_notes": "Inhibits CYP2C19: avoid co-administration with clopidogrel (reduces active clopidogrel metabolite and antiplatelet protection).",
+      "typical_adult_dose": "20 mg to 40 mg orally once daily before a meal."
+    },
+    "prednisolone": {
+      "eml_status": "Core List",
+      "section": "18.1 Corticosteroids / 3 Antiallergics",
+      "recommended_indications": "Acute asthma/COPD exacerbation, autoimmune/inflammatory disorders, allergic conditions",
+      "who_notes": "Increases GI ulceration/bleeding risk when combined with NSAIDs or aspirin. Causes hyperglycemia (monitor diabetic patients). Taper gradually if used >2-3 weeks.",
+      "typical_adult_dose": "5 mg to 60 mg orally daily depending on indication (e.g., 40 mg daily for 5 days in acute asthma)."
+    }
+  }
+}
+
