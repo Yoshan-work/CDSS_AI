@@ -1,0 +1,31 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Data, Vector DB, Caches & Evaluation History
+Data/
+data/
+*.sqlite
+*.db
+
+# System Trace & Operational Logs
+logs/
+*.log
+
+# Python Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# IDE / OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

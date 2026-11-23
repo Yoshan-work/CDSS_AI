@@ -11,9 +11,34 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
+
+
+def _load_dotenv(env_path: Path) -> None:
+    """Load key=value pairs from .env into os.environ without overriding existing env vars."""
+    if not env_path.exists():
+        return
+    with open(env_path, "r", encoding="utf-8") as f:
+        for raw_line in f:
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = val
+
+
+_load_dotenv(BASE_DIR / ".env")
+
 DATA_DIR = BASE_DIR / "Data"
 CHUNKS_DIR = DATA_DIR / "chunks"
 LOGS_DIR = BASE_DIR / "logs"
+
+# Server Configuration
+CDSS_HOST = os.environ.get("CDSS_HOST", "127.0.0.1")
+CDSS_PORT = int(os.environ.get("CDSS_PORT", "8000"))
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 
 # Ensure directories exist
 DATA_DIR.mkdir(parents=True, exist_ok=True)

@@ -154,5 +154,6 @@ def seed_knowledge_base(req: SeedRequest) -> Dict:
 
 if __name__ == "__main__":
     import uvicorn
+    from config import CDSS_HOST, CDSS_PORT
 
-    uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run("app:app", host=CDSS_HOST, port=CDSS_PORT, reload=False)
